@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import "./App.css";
 
-const API_BASE_URL = "https://api-backend-spring-nhom5-chieut6.onrender.com/";
+const API_BASE_URL = "/backend";
 
 function App() {
   const [users, setUsers] = useState([]);
@@ -15,7 +15,7 @@ function App() {
     setLoading(true);
     setError(null);
     try {
-      const res = await fetch(`${API_BASE_URL}/users`);
+      const res = await fetch(`${API_BASE_URL}`);
       if (!res.ok) throw new Error(`Lỗi ${res.status}: ${res.statusText}`);
       const data = await res.json();
       setUsers(data);
@@ -40,7 +40,7 @@ function App() {
     setSubmitting(true);
     setSubmitMsg(null);
     try {
-      const res = await fetch(`${API_BASE_URL}/users`, {
+      const res = await fetch(`${API_BASE_URL}`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ name: form.name, mssv: form.mssv }),
