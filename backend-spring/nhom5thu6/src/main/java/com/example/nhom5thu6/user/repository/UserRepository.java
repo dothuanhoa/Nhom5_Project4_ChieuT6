@@ -6,4 +6,5 @@ import com.example.nhom5thu6.user.entity.User;
 
 public interface UserRepository extends JpaRepository<User, Integer>{
     
+    
 }
