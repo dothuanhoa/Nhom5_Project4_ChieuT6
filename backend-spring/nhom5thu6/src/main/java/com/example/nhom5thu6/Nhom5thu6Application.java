@@ -8,6 +8,7 @@ public class Nhom5thu6Application {
 
 	public static void main(String[] args) {
 		SpringApplication.run(Nhom5thu6Application.class, args);
+		
 	}
 
 }

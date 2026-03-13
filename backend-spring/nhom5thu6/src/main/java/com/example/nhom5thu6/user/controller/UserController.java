@@ -8,20 +8,36 @@ import com.example.nhom5thu6.user.service.UserService;
 
 import lombok.RequiredArgsConstructor;
 
+import java.net.http.HttpResponse;
 import java.util.List;
 
+import org.apache.catalina.connector.Response;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.HttpStatusCode;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+
+
 
 
 @RestController
-@RequestMapping("/users")
+@RequestMapping("/")
 @RequiredArgsConstructor
 public class UserController {
     private final UserService service;
-    @GetMapping()
+    @GetMapping
     public List<User> getAllUsers() {
         return service.getAllUsers();
     }
+
+    @PostMapping()
+    public ResponseEntity<User> createUser(@RequestBody User user) {
+        User newU =  service.createUser(user);
+        return ResponseEntity.status(HttpStatus.CREATED).body(newU);
+    }
+    
+    
     
 }
