@@ -12,13 +12,23 @@ import lombok.RequiredArgsConstructor;
 @Service
 @RequiredArgsConstructor
 public class UserServiceImp implements UserService {
-    private final UserRepository repository;
+    private final UserRepository userRepository;
     
 
 
     @Override
     public List<User> getAllUsers() {
-        return repository.findAll();
+        return userRepository.findAll();
     }
+
+
+
+    @Override
+    public User createUser(User user) {
+        return userRepository.save(user);
+    }
+
+
+
 
 }
