@@ -1,7 +1,10 @@
 import { useState, useEffect } from "react";
 import "./App.css";
 
-const API_BASE_URL = "/backend";
+const BACKEND_URL = "https://api-backend-spring-nhom5-chieut6.onrender.com";
+const API_BASE_URL =
+  import.meta.env.VITE_API_BASE_URL ||
+  (import.meta.env.DEV ? "/backend" : BACKEND_URL);
 
 function App() {
   const [users, setUsers] = useState([]);
