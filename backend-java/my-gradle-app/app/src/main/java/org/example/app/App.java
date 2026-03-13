@@ -19,7 +19,7 @@ public class App {
         int port = (portEnv != null) ? Integer.parseInt(portEnv) : 8080;
 
         HttpServer server = HttpServer.create(new InetSocketAddress(port), 0);
-        server.createContext("/users", new UsersHandler());
+        server.createContext("/", new UsersHandler());
         server.setExecutor(null);
         server.start();
 
