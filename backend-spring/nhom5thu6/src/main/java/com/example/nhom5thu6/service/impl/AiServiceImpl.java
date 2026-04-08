@@ -32,28 +32,30 @@ public class AiServiceImpl implements AiService {
         this.s3Client = s3Client;
     }
 
-    @Override
+   @Override
     public RegistrationResponse registerFace(MultipartFile file) {
         try {
-            String s3Key = "faces/" + UUID.randomUUID() + "_" + file.getOriginalFilename();
-            // Đẩy S3
+           
+            String s3Key = "faces/" + UUID.randomUUID() + ".jpg";
             s3Client.putObject(PutObjectRequest.builder().bucket(bucketName).key(s3Key).build(),
                     RequestBody.fromBytes(file.getBytes()));
             
-            // Đăng ký Rekognition
+            String s3Url = "https://" + bucketName + ".s3.amazonaws.com/" + s3Key;
+            
+          
             IndexFacesRequest request = IndexFacesRequest.builder()
                     .collectionId(collectionId)
-                    .image(Image.builder().s3Object(s -> s.bucket(bucketName).name(s3Key)).build())
+                    .image(Image.builder().bytes(software.amazon.awssdk.core.SdkBytes.fromByteArray(file.getBytes())).build())
                     .build();
             IndexFacesResponse response = rekognitionClient.indexFaces(request);
             
             String faceId = response.faceRecords().get(0).face().faceId();
-            String s3Url = "https://" + bucketName + ".s3.amazonaws.com/" + s3Key;
             
             return new RegistrationResponse(faceId, s3Url);
-        } catch (Exception e) { throw new RuntimeException("Lỗi AWS: " + e.getMessage()); }
+        } catch (Exception e) { 
+            throw new RuntimeException("Lỗi AWS: " + e.getMessage()); 
+        }
     }
-
     @Override
     public List<RecognitionResponse> detectFaces(MultipartFile file) {
         try {
