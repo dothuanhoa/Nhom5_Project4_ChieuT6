@@ -13,4 +13,6 @@ public interface StudentService {
     Student save(Student student);
     
     void delete(Integer id);
+
+    List<Student> findByCourseId(int courseId);
 }

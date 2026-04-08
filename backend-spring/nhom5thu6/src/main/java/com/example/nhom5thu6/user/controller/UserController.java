@@ -31,13 +31,4 @@ public class UserController {
     public List<User> getAllUsers() {
         return service.getAllUsers();
     }
-
-    @PostMapping()
-    public ResponseEntity<User> createUser(@RequestBody User user) {
-        User newU =  service.createUser(user);
-        return ResponseEntity.status(HttpStatus.CREATED).body(newU);
-    }
-    
-    
-    
 }

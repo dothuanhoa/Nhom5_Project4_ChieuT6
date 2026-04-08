@@ -1,0 +1,14 @@
+{
+  "configurations": [
+    {
+      "type": "java",
+      "name": "Spring Boot-Nhom5thu6Application<nhom5thu6>",
+      "request": "launch",
+      "cwd": "${workspaceFolder}",
+      "mainClass": "com.example.nhom5thu6.Nhom5thu6Application",
+      "projectName": "nhom5thu6",
+      "args": "",
+      "envFile": "${workspaceFolder}/.env"
+    }
+  ]
+}
