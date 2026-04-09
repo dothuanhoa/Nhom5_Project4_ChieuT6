@@ -1,19 +1,30 @@
-import AdminLayout from "../layout/AdminLayout/index";
-import TeacherLayout from "../layout/TeacherLayout/index";
+import AdminLayout from "../layout/AdminLayout";
+import TeacherLayout from "../layout/TeacherLayout";
 import PrivateRoutes from "../components/PrivateRoutes";
+import { Navigate } from "react-router-dom";
+
+import Login from "../pages/auth/Login";
 
 // ===  ADMIN ===
 import Dashboard from "../pages/admin/Dashboard";
 import Classes from "../pages/admin/Classes";
 import RegisterFace from "../pages/admin/RegisterFace";
 import Students from "../pages/admin/Students";
+import AdminAttendanceHistory from "../pages/admin/AttendanceHistory";
 
 // === GIÁO VIÊN ===
 import Attendance from "../pages/teacher/Attendance";
-import History from "../pages/teacher/History";
-import Verify from "../pages/teacher/Verify";
+import TeacherAttendanceHistory from "../pages/teacher/AttendanceHistory";
 
 export const routes = [
+  {
+    path: "/login",
+    element: <Login />,
+  },
+  {
+    path: "/",
+    element: <Navigate to="/login" />,
+  },
   // ==========================================
   // 1. NHÓM ADMIN
   // ==========================================
@@ -40,6 +51,10 @@ export const routes = [
             path: "register-face",
             element: <RegisterFace />,
           },
+          {
+            path: "attendance",
+            element: <AdminAttendanceHistory />,
+          },
         ],
       },
     ],
@@ -61,16 +76,8 @@ export const routes = [
             element: <Attendance />,
           },
           {
-            path: "attendance",
-            element: <Attendance />,
-          },
-          {
-            path: "history",
-            element: <History />,
-          },
-          {
-            path: "verify",
-            element: <Verify />,
+            path: "attendanceHistory",
+            element: <TeacherAttendanceHistory />,
           },
         ],
       },

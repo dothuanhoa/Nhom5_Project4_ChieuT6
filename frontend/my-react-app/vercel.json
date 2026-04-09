@@ -7,6 +7,10 @@
     {
       "source": "/backend/:path*",
       "destination": "https://api-backend-spring-nhom5-chieut6.onrender.com/:path*"
+    },
+    {
+      "source": "/(.*)",
+      "destination": "/index.html"
     }
   ]
 }
