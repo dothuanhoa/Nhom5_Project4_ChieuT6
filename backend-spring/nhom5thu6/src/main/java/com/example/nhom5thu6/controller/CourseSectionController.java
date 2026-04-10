@@ -16,7 +16,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 
 
 @RestController
-@RequestMapping("/course-sections")
+@RequestMapping("/classes")
 public class CourseSectionController {
     private final CourseSectionRepository courseSectionRepository;
     private final StudentService studentService;
