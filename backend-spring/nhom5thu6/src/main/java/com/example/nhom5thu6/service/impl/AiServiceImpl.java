@@ -66,45 +66,38 @@ public class AiServiceImpl implements AiService {
     public List<RecognitionResponse> detectFaces(MultipartFile file) {
         List<RecognitionResponse> allResults = new ArrayList<>();
         try {
-            // 1. Chuyển file ảnh thành đối tượng BufferedImage để Java có thể cắt ảnh
             byte[] imageBytes = file.getBytes();
             BufferedImage originalImage = ImageIO.read(new ByteArrayInputStream(imageBytes));
             int width = originalImage.getWidth();
             int height = originalImage.getHeight();
 
-            // 2. Gọi API DetectFaces để lấy tọa độ của TẤT CẢ khuôn mặt trong ảnh
             DetectFacesRequest detectRequest = DetectFacesRequest.builder()
                     .image(Image.builder().bytes(software.amazon.awssdk.core.SdkBytes.fromByteArray(imageBytes))
                             .build())
                     .build();
             DetectFacesResponse detectResponse = rekognitionClient.detectFaces(detectRequest);
 
-            // 3. Vòng lặp bóc tách và cắt từng khuôn mặt
             for (FaceDetail faceDetail : detectResponse.faceDetails()) {
                 BoundingBox box = faceDetail.boundingBox();
 
-                // Tính toán pixel thực tế (AWS trả về tỷ lệ phần trăm 0.0 -> 1.0)
                 int left = (int) (box.left() * width);
                 int top = (int) (box.top() * height);
                 int faceWidth = (int) (box.width() * width);
                 int faceHeight = (int) (box.height() * height);
 
-                // Mẹo nhỏ: Đảm bảo nhát cắt không bị tràn ra ngoài viền ảnh gây lỗi
                 left = Math.max(0, left);
                 top = Math.max(0, top);
                 faceWidth = Math.min(width - left, faceWidth);
                 faceHeight = Math.min(height - top, faceHeight);
 
-                // Cắt ảnh mặt của sinh viên này ra
                 BufferedImage croppedImage = originalImage.getSubimage(left, top, faceWidth, faceHeight);
                 ByteArrayOutputStream baos = new ByteArrayOutputStream();
                 ImageIO.write(croppedImage, "jpg", baos);
                 byte[] croppedBytes = baos.toByteArray();
 
-                // 4. Gửi riêng cái mặt vừa cắt cho Rekognition để truy tìm danh tính
                 SearchFacesByImageRequest searchRequest = SearchFacesByImageRequest.builder()
                         .collectionId(collectionId)
-                        .faceMatchThreshold(60F) // Chỉ lấy ai giống > 60%
+                        .faceMatchThreshold(60F)
                         .image(Image.builder().bytes(software.amazon.awssdk.core.SdkBytes.fromByteArray(croppedBytes))
                                 .build())
                         .build();
@@ -112,17 +105,14 @@ public class AiServiceImpl implements AiService {
                 try {
                     SearchFacesByImageResponse searchResponse = rekognitionClient.searchFacesByImage(searchRequest);
 
-                    // Nếu tìm thấy người khớp trong Database
                     if (!searchResponse.faceMatches().isEmpty()) {
                         FaceMatch match = searchResponse.faceMatches().get(0);
                         allResults.add(new RecognitionResponse(match.face().faceId(), match.similarity()));
                     }
                 } catch (Exception e) {
-                    // Bỏ qua âm thầm nếu cái mặt này bị mờ, nhòe hoặc không có trong hệ thống
                 }
             }
 
-            // Trả về danh sách cả lớp!
             return allResults;
 
         } catch (Exception e) {
