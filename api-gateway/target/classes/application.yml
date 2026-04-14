@@ -1,0 +1,29 @@
+server:
+  port: 8080
+
+spring:
+  cloud:
+    gateway:
+      routes:
+        - id: java-service
+          uri: https://api-backend-java-nhom5-chieut6.onrender.com
+          predicates:
+            - Path=/api/java/**
+          filters:
+            - StripPrefix=2
+
+        - id: spring-service
+          uri: https://api-backend-spring-nhom5-chieut6.onrender.com
+          predicates:
+            - Path=/api/spring/**
+          filters:
+            - StripPrefix=2
+
+        - id: node-service
+          uri: https://api-backend-node-nhom5-chieut6.onrender.com
+          predicates:
+            - Path=/api/node/**
+          filters:
+            - StripPrefix=2
+        
+        
