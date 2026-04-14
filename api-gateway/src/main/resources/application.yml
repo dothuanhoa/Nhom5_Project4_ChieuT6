@@ -25,5 +25,11 @@ spring:
             - Path=/api/node/**
           filters:
             - StripPrefix=2
+        - id: test-google
+          uri: https://www.google.com
+          predicates:
+            - Path=/test/**
+          filters:
+            - StripPrefix=1
         
         
