@@ -1,7 +1,7 @@
 import React from "react";
-import { Download, ChevronDown, RefreshCw, Search } from "lucide-react";
 import useAttendance from "../../hooks/useAttendance";
 import { toast } from "sonner";
+import "../../assets/styles/admin.style.css";
 
 export default function AttendanceHistory() {
   const {
@@ -21,125 +21,166 @@ export default function AttendanceHistory() {
     refresh,
   } = useAttendance();
 
-  // Sửa lỗi Key và lọc giá trị null
-  const uniqueClasses = [...new Set((records || []).map((r) => r.classId).filter(Boolean))];
-  const uniqueTeachers = [...new Set((records || []).map((r) => r.teacher).filter(Boolean))];
+  // Lấy danh sách duy nhất cho bộ lọc
+  const uniqueClasses = [
+    ...new Set((records || []).map((r) => r.classId).filter(Boolean)),
+  ];
+  const uniqueTeachers = [
+    ...new Set((records || []).map((r) => r.teacher).filter(Boolean)),
+  ];
 
   const getStatusBadge = (status) => {
     const config = {
-      present: { label: "Có mặt", class: "bg-green-50 text-green-600 border-green-100" },
-      late: { label: "Muộn", class: "bg-orange-50 text-orange-500 border-orange-100" },
-      absent: { label: "Vắng mặt", class: "bg-red-50 text-red-500 border-red-100" },
+      present: { label: "Có mặt", icon: "fa-circle-check", class: "success" },
+      late: { label: "Muộn", icon: "fa-clock", class: "neutral" },
+      absent: { label: "Vắng mặt", icon: "fa-circle-xmark", class: "danger" },
     };
     const item = config[status] || config.absent;
     return (
-      <span className={`px-3 py-1 rounded-full text-[10px] font-bold border ${item.class}`}>
-        {item.label}
+      <span className={`stat-badge ${item.class}`}>
+        <i className={`fa-solid ${item.icon}`}></i> {item.label}
       </span>
     );
   };
 
   return (
-    <div className="font-sans space-y-6">
-      <div className="flex justify-between items-center">
-        <h2 className="text-[28px] font-bold text-[#083c96]">Lịch sử điểm danh</h2>
-        <button className="flex items-center gap-2 px-5 py-2.5 bg-[#083c96] text-white font-bold rounded-xl shadow-md">
-          <Download size={18} /> Xuất báo cáo
+    <div className="attendance-page">
+      {/* HEADER */}
+      <div className="page-header">
+        <h2 className="dashboard-title">Lịch sử điểm danh</h2>
+        <button className="btn-primary">
+          <i className="fa-solid fa-file-export"></i> Xuất báo cáo
         </button>
       </div>
 
-      {/* Filters */}
-      <div className="bg-white rounded-[32px] p-6 border border-gray-100 shadow-sm">
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-4 items-end">
-          {["Giảng viên", "Lớp học", "Ngày"].map((label, idx) => (
-            <div key={idx}>
-              <label className="text-[11px] font-bold text-gray-400 uppercase mb-2 block">{label}</label>
-              {label === "Ngày" ? (
-                <input
-                  type="date"
-                  value={selectedDate}
-                  onChange={(e) => setSelectedDate(e.target.value)}
-                  className="w-full p-3 bg-gray-50 rounded-2xl border-none text-sm font-bold"
-                />
-              ) : (
-                <div className="relative">
-                  <select
-                    value={label === "Giảng viên" ? selectedTeacher : selectedClass}
-                    onChange={(e) => label === "Giảng viên" ? setSelectedTeacher(e.target.value) : setSelectedClass(e.target.value)}
-                    className="w-full p-3 bg-gray-50 rounded-2xl border-none text-sm font-bold appearance-none"
-                  >
-                    <option value="all">Tất cả {label.toLowerCase()}</option>
-                    {(label === "Giảng viên" ? uniqueTeachers : uniqueClasses).map((item) => (
-                      <option key={item} value={item}>{item}</option>
-                    ))}
-                  </select>
-                  <ChevronDown className="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400 pointer-events-none" />
-                </div>
-              )}
-            </div>
-          ))}
-          <button
-            onClick={() => { refresh(); toast.success("Đã làm mới dữ liệu"); }}
-            className="bg-[#f0f4ff] text-[#083c96] p-3.5 rounded-2xl font-bold flex items-center justify-center gap-2 hover:bg-[#083c96] hover:text-white transition-all"
-          >
-            <RefreshCw size={18} /> Làm mới
-          </button>
+      {/* FILTER SECTION */}
+      <div
+        className="table-wrapper"
+        style={{ marginBottom: "24px", padding: "24px" }}
+      >
+        <div
+          className="form-grid"
+          style={{
+            gridTemplateColumns: "repeat(auto-fit, minmax(200px, 1fr))",
+            gap: "20px",
+          }}
+        >
+          <div className="form-group" style={{ marginBottom: 0 }}>
+            <label className="form-label">Giảng viên</label>
+            <select
+              className="input-field"
+              value={selectedTeacher}
+              onChange={(e) => setSelectedTeacher(e.target.value)}
+            >
+              <option value="all">Tất cả giảng viên</option>
+              {uniqueTeachers.map((t) => (
+                <option key={t} value={t}>
+                  {t}
+                </option>
+              ))}
+            </select>
+          </div>
+          <div className="form-group" style={{ marginBottom: 0 }}>
+            <label className="form-label">Lớp học</label>
+            <select
+              className="input-field"
+              value={selectedClass}
+              onChange={(e) => setSelectedClass(e.target.value)}
+            >
+              <option value="all">Tất cả lớp học</option>
+              {uniqueClasses.map((c) => (
+                <option key={c} value={c}>
+                  {c}
+                </option>
+              ))}
+            </select>
+          </div>
+          <div className="form-group" style={{ marginBottom: 0 }}>
+            <label className="form-label">Ngày</label>
+            <input
+              type="date"
+              className="input-field"
+              value={selectedDate}
+              onChange={(e) => setSelectedDate(e.target.value)}
+            />
+          </div>
+          <div style={{ display: "flex", alignItems: "flex-end" }}>
+            <button
+              onClick={() => {
+                refresh();
+                toast.success("Đã cập nhật dữ liệu");
+              }}
+              className="btn-secondary"
+              style={{ width: "100%", height: "48px" }}
+            >
+              <i className="fa-solid fa-rotate"></i> Làm mới
+            </button>
+          </div>
         </div>
       </div>
 
-      {/* Table */}
-      <div className="bg-white rounded-[32px] border border-gray-100 shadow-sm overflow-hidden">
-        <div className="p-6 border-b border-gray-50 flex justify-between items-center">
-          <h3 className="font-bold text-gray-900">Chi tiết điểm danh</h3>
-          <div className="relative w-80">
-            <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
+      {/* TABLE SECTION */}
+      <div className="table-wrapper">
+        <div className="search-filter-section">
+          <h3 style={{ fontWeight: 800 }}>Chi tiết bản ghi</h3>
+          <div className="search-input-box">
+            <i className="fa-solid fa-magnifying-glass"></i>
             <input
-              type="text"
-              placeholder="Tìm kiếm..."
+              placeholder="Tìm tên, mã sinh viên..."
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
-              className="w-full pl-12 pr-4 py-2.5 bg-gray-50 rounded-2xl text-sm border-none focus:ring-2 focus:ring-blue-100"
             />
           </div>
         </div>
 
-        <div className="overflow-x-auto">
-          <table className="w-full text-left">
-            <thead className="bg-gray-50/50 text-[10px] font-bold text-gray-400 uppercase tracking-widest">
+        <div className="admin-table-container">
+          <table className="admin-table">
+            <thead>
               <tr>
-                <th className="px-8 py-5">Sinh viên</th>
-                <th className="px-6 py-5">Mã SV / Lớp</th>
-                <th className="px-6 py-5">Giảng viên</th>
-                <th className="px-6 py-5">Thời gian</th>
-                <th className="px-6 py-5 text-center">Độ chính xác</th>
-                <th className="px-8 py-5 text-center">Trạng thái</th>
+                <th>Sinh viên</th>
+                <th>Mã SV / Lớp</th>
+                <th>Thời gian</th>
+                <th style={{ textAlign: "center" }}>Độ khớp (Face)</th>
+                <th style={{ textAlign: "center" }}>Trạng thái</th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-gray-50">
+            <tbody>
               {currentRecords.map((record) => (
-                <tr key={record.id} className="hover:bg-blue-50/30 transition-colors">
-                  <td className="px-8 py-5 font-bold text-gray-900 uppercase text-sm">
-                    {record.studentName}
+                <tr key={record.id}>
+                  <td>
+                    <div className="student-info-cell">
+                      <div className="student-avatar-circle">
+                        <i className="fa-solid fa-user"></i>
+                      </div>
+                      <b style={{ textTransform: "uppercase" }}>
+                        {record.studentName}
+                      </b>
+                    </div>
                   </td>
-                  <td className="px-6 py-5 text-sm font-bold text-gray-700">
-                    {record.studentId}
-                    <br />
-                    <span className="text-[11px] text-gray-400">{record.classId}</span>
+                  <td>
+                    <span style={{ fontWeight: 700 }}>{record.studentId}</span>
+                    <div style={{ fontSize: "11px", color: "#94a3b8" }}>
+                      {record.classId}
+                    </div>
                   </td>
-                  <td className="px-6 py-5 text-xs font-bold text-gray-500 uppercase italic">
-                    {/* Hiển thị 'ThS. Lê Hoàng Long' nếu dữ liệu trống */}
-                    {record.teacher || "ThS. Lê Hoàng Long"}
+                  <td>
+                    <div style={{ fontWeight: 700 }}>{record.time}</div>
+                    <div style={{ fontSize: "11px", color: "#94a3b8" }}>
+                      {record.date}
+                    </div>
                   </td>
-                  <td className="px-6 py-5 text-sm font-bold text-gray-900">
-                    {record.time}
-                    <br />
-                    <span className="text-[11px] text-gray-400">{record.date}</span>
+                  <td style={{ textAlign: "center" }}>
+                    <span
+                      style={{
+                        fontFamily: "monospace",
+                        fontWeight: 900,
+                        color: "var(--admin-blue)",
+                      }}
+                    >
+                      {record.similarity ?? 0}%
+                    </span>
                   </td>
-                  <td className="px-6 py-5 text-center font-mono font-black text-[#083c96]">
-                    {/* SỬA TỪ accuracy THÀNH similarity ĐỂ KHỚP MOCK DATABASE */}
-                    {record.similarity ?? 0}%
-                  </td>
-                  <td className="px-8 py-5 text-center">
+                  <td style={{ textAlign: "center" }}>
                     {getStatusBadge(record.status)}
                   </td>
                 </tr>
@@ -148,23 +189,35 @@ export default function AttendanceHistory() {
           </table>
         </div>
 
-        {/* Pagination */}
-        <div className="p-6 border-t border-gray-50 flex justify-between items-center bg-gray-50/30">
-          <span className="text-[11px] font-black text-gray-400 uppercase">
-            Trang {currentPage} / {totalPages}
+        {/* PAGINATION */}
+        <div
+          className="table-footer"
+          style={{
+            padding: "20px 32px",
+            display: "flex",
+            justifyContent: "space-between",
+            alignItems: "center",
+          }}
+        >
+          <span style={{ fontSize: "11px", fontWeight: 800, color: "#94a3b8" }}>
+            TRANG {currentPage} / {totalPages}
           </span>
-          <div className="flex gap-2">
+          <div style={{ display: "flex", gap: "8px" }}>
             <button
+              className="btn-secondary"
+              style={{ padding: "8px 16px" }}
               onClick={() => setCurrentPage((prev) => Math.max(prev - 1, 1))}
               disabled={currentPage === 1}
-              className="px-5 py-2 bg-white border rounded-xl text-xs font-bold disabled:opacity-30"
             >
               Trước
             </button>
             <button
-              onClick={() => setCurrentPage((prev) => Math.min(prev + 1, totalPages))}
+              className="btn-primary"
+              style={{ padding: "8px 16px" }}
+              onClick={() =>
+                setCurrentPage((prev) => Math.min(prev + 1, totalPages))
+              }
               disabled={currentPage === totalPages}
-              className="px-5 py-2 bg-[#083c96] text-white rounded-xl text-xs font-bold disabled:opacity-30"
             >
               Sau
             </button>

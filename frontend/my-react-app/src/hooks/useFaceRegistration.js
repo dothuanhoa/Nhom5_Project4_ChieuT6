@@ -1,13 +1,13 @@
 import { useState, useRef, useEffect } from "react";
 import { toast } from "sonner";
-import { faceService, studentService } from "../services/api";
+import { faceService, studentService } from "../services/api_Admin";
 
 export default function useFaceRegistration() {
   const [formData, setFormData] = useState({
     studentId: "",
     name: "",
     faceId: "",
-    status: "active",
+    status: "active", // Luôn mặc định là đang hoạt động
   });
 
   const [image, setImage] = useState(null);
@@ -15,7 +15,7 @@ export default function useFaceRegistration() {
   const [progress, setProgress] = useState(0);
   const fileInputRef = useRef(null);
 
-  // Giả lập tiến trình khi đang xử lý
+  // Giả lập tiến trình chạy thanh progress khi đang xử lý
   useEffect(() => {
     let interval;
     if (registrationStatus === "processing") {
@@ -36,6 +36,9 @@ export default function useFaceRegistration() {
   const handleImageUpload = (e) => {
     const file = e.target.files?.[0];
     if (file) {
+      if (!file.type.startsWith("image/")) {
+        return toast.error("Vui lòng chỉ chọn tệp hình ảnh");
+      }
       const reader = new FileReader();
       reader.onloadend = () => setImage(reader.result);
       reader.readAsDataURL(file);
@@ -51,59 +54,8 @@ export default function useFaceRegistration() {
       const reader = new FileReader();
       reader.onloadend = () => setImage(reader.result);
       reader.readAsDataURL(file);
-    }
-  };
-
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-
-    if (!image) {
-      alert("Vui lòng tải lên ảnh khuôn mặt");
-      return;
-    }
-
-    if (!formData.studentId || !formData.name) {
-      alert("Vui lòng nhập đầy đủ mã sinh viên và họ tên");
-      return;
-    }
-
-    setRegistrationStatus("processing");
-
-    try {
-      const response = await faceService.registerFace({
-        studentId: formData.studentId,
-        name: formData.name,
-        status: formData.status,
-      });
-
-      setProgress(100);
-
-      if (!response.success) {
-        throw new Error(response.message || "Đăng ký thất bại");
-      }
-
-      const faceId = response.faceId;
-
-      const newStudent = {
-        id: formData.studentId,
-        name: formData.name,
-        class: "Chưa có lớp",
-        faceId: faceId,
-        status: formData.status,
-      };
-
-      await studentService.addStudent(newStudent);
-
-      setFormData((prev) => ({ ...prev, faceId }));
-      setRegistrationStatus("success");
-
-      alert("Đăng ký khuôn mặt & thêm sinh viên thành công!");
-
-      handleReset();
-    } catch (error) {
-      setRegistrationStatus("error");
-
-      alert(error.message || "Có lỗi xảy ra khi đăng ký");
+    } else {
+      toast.error("Vui lòng kéo thả tệp hình ảnh");
     }
   };
 
@@ -114,11 +66,60 @@ export default function useFaceRegistration() {
     setProgress(0);
   };
 
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+
+    if (!image) {
+      return toast.error("Vui lòng tải lên hoặc chụp ảnh khuôn mặt");
+    }
+
+    if (!formData.studentId.trim() || !formData.name.trim()) {
+      return toast.error("Vui lòng nhập đầy đủ mã sinh viên và họ tên");
+    }
+
+    setRegistrationStatus("processing");
+
+    try {
+      // 1. Gọi API đăng ký khuôn mặt để lấy FaceID từ AWS/Server
+      const response = await faceService.registerFace({
+        studentId: formData.studentId,
+        name: formData.name,
+        status: "active",
+      });
+
+      if (!response.success) {
+        throw new Error(response.message || "Đăng ký khuôn mặt thất bại");
+      }
+
+      setProgress(100);
+      const faceIdFromSystem = response.faceId;
+
+      // 2. Thêm thông tin sinh viên vào cơ sở dữ liệu
+      const newStudent = {
+        id: formData.studentId,
+        name: formData.name,
+        class: "Chưa phân lớp",
+        faceId: faceIdFromSystem,
+        status: "active",
+      };
+
+      await studentService.addStudent(newStudent);
+
+      setRegistrationStatus("success");
+      toast.success("Đăng ký khuôn mặt và hồ sơ sinh viên thành công!");
+
+      // Reset form sau khi thành công
+      handleReset();
+    } catch (error) {
+      setRegistrationStatus("error");
+      toast.error(error.message || "Có lỗi xảy ra trong quá trình đăng ký");
+    }
+  };
+
   return {
     formData,
     setFormData,
     image,
-    setImage,
     registrationStatus,
     progress,
     fileInputRef,

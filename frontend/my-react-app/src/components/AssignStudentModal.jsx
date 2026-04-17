@@ -1,9 +1,13 @@
 import React, { useState, useEffect } from "react";
-import { X, Search, Loader2 } from "lucide-react";
-import { studentService } from "../services/api";
+import { studentService, classService } from "../services/api_Admin";
+import { toast } from "sonner";
+import "../assets/styles/admin.style.css"; // Hãy kiểm tra lại đường dẫn này
 
 export default function AssignStudentModal({
-  showAssignModal, setShowAssignModal, selectedClass, onAssignSubmit
+  showAssignModal,
+  setShowAssignModal,
+  selectedClass,
+  onSuccess,
 }) {
   const [students, setStudents] = useState([]);
   const [loading, setLoading] = useState(false);
@@ -14,74 +18,119 @@ export default function AssignStudentModal({
     if (showAssignModal) {
       const loadStudents = async () => {
         setLoading(true);
-        const data = await studentService.getStudents();
-        setStudents(data.students || data);
-        setLoading(false);
+        try {
+          const data = await studentService.getStudents();
+          setStudents(data.students || data);
+        } catch {
+          toast.error("Không thể tải danh sách sinh viên");
+        } finally {
+          setLoading(false);
+        }
       };
       loadStudents();
-      setSelectedIds([]); // Reset lựa chọn mỗi khi mở modal
+      setSelectedIds([]);
       setSearch("");
     }
   }, [showAssignModal]);
 
   if (!showAssignModal || !selectedClass) return null;
 
-  const filteredStudents = students.filter(s => 
-    s.name.toLowerCase().includes(search.toLowerCase()) || 
-    s.id.toLowerCase().includes(search.toLowerCase())
+  const filtered = students.filter(
+    (s) =>
+      s.name.toLowerCase().includes(search.toLowerCase()) ||
+      s.id.toLowerCase().includes(search.toLowerCase()),
   );
 
-  const toggleStudent = (id) => {
-    setSelectedIds(prev => prev.includes(id) ? prev.filter(sId => sId !== id) : [...prev, id]);
-  };
-
-  const handleSubmit = () => {
-    if (selectedIds.length === 0) return;
-    onAssignSubmit(selectedIds);
+  const handleConfirm = async () => {
+    try {
+      await classService.assignStudents(selectedClass.id, selectedIds);
+      toast.success("Đã thêm sinh viên vào lớp");
+      onSuccess(); // Tải lại danh sách ở trang Classes
+      setShowAssignModal(false); // Đóng modal
+    } catch {
+      toast.error("Có lỗi xảy ra khi thêm");
+    }
   };
 
   return (
-    <div className="fixed inset-0 bg-black/20 backdrop-blur-sm flex items-center justify-center z-50 p-4">
-      <div className="bg-white rounded-3xl max-w-2xl w-full p-8 max-h-[90vh] flex flex-col">
-        <div className="flex items-center justify-between mb-6">
+    /* Click vào nền mờ sẽ đóng modal */
+    <div className="modal-overlay" onClick={() => setShowAssignModal(false)}>
+      {/* Click vào bên trong container thì KHÔNG đóng modal */}
+      <div className="modal-container" onClick={(e) => e.stopPropagation()}>
+        <div className="modal-header">
           <div>
-            <h3 className="text-xl font-bold text-gray-900">Thêm sinh viên vào lớp</h3>
-            <p className="text-sm font-medium text-gray-500 mt-1">
-              {selectedClass.courseId} - {selectedClass.courseName} (Nhóm {selectedClass.group})
+            <h3 className="modal-title">Thêm sinh viên vào lớp</h3>
+            <p style={{ fontSize: "13px", color: "#64748b", marginTop: "4px" }}>
+              {selectedClass.courseName} - Nhóm {selectedClass.group}
             </p>
           </div>
-          <button onClick={() => setShowAssignModal(false)} className="text-gray-400 hover:text-gray-900">
-            <X size={24} />
+          <button
+            className="modal-close-btn"
+            onClick={() => setShowAssignModal(false)}
+          >
+            <i className="fa-solid fa-xmark"></i>
           </button>
         </div>
 
-        <div className="mb-4 relative">
-          <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 w-5 h-5" />
-          <input
-            type="text"
-            placeholder="Tìm kiếm theo mã SV, họ tên..."
-            value={search}
-            onChange={(e) => setSearch(e.target.value)}
-            className="w-full pl-12 pr-4 py-3 bg-[#f4f4f5] border border-transparent rounded-xl focus:outline-none focus:bg-white focus:ring-2 focus:ring-[#083c96]/20 transition-all font-medium"
-          />
+        <div style={{ padding: "20px 32px 10px" }}>
+          <div className="search-input-box" style={{ width: "100%" }}>
+            <i className="fa-solid fa-magnifying-glass"></i>
+            <input
+              placeholder="Tìm mã SV, tên sinh viên..."
+              value={search}
+              onChange={(e) => setSearch(e.target.value)}
+            />
+          </div>
         </div>
 
-        <div className="flex-1 overflow-y-auto space-y-2 min-h-[300px] pr-2">
+        <div
+          style={{ maxHeight: "350px", overflowY: "auto", padding: "0 32px" }}
+        >
           {loading ? (
-            <div className="flex justify-center items-center h-full"><Loader2 className="w-8 h-8 animate-spin text-[#083c96]" /></div>
+            <div className="loader-container">
+              <div className="spinner"></div>
+            </div>
           ) : (
-            filteredStudents.map((student) => (
-              <label key={student.id} className="flex items-center justify-between p-3.5 border border-gray-100 rounded-xl hover:bg-gray-50 cursor-pointer transition-colors">
-                <div className="flex items-center gap-4">
-                  <input 
-                    type="checkbox" 
-                    checked={selectedIds.includes(student.id)}
-                    onChange={() => toggleStudent(student.id)}
-                    className="w-5 h-5 text-[#083c96] border-gray-300 rounded focus:ring-[#083c96]" 
-                  />
-                  <div>
-                    <p className="text-[15px] font-bold text-gray-900">{student.name}</p>
-                    <p className="text-xs font-semibold text-gray-400">{student.id}</p>
+            filtered.map((s) => (
+              <label
+                key={s.id}
+                style={{
+                  display: "flex",
+                  alignItems: "center",
+                  gap: "15px",
+                  padding: "12px 0",
+                  borderBottom: "1px solid #f8fafc",
+                  cursor: "pointer",
+                }}
+              >
+                <input
+                  type="checkbox"
+                  style={{
+                    width: "18px",
+                    height: "18px",
+                    accentColor: "var(--admin-blue)",
+                  }}
+                  checked={selectedIds.includes(s.id)}
+                  onChange={() =>
+                    setSelectedIds((prev) =>
+                      prev.includes(s.id)
+                        ? prev.filter((id) => id !== s.id)
+                        : [...prev, s.id],
+                    )
+                  }
+                />
+                <div>
+                  <div
+                    style={{
+                      fontWeight: 700,
+                      fontSize: "14px",
+                      color: "#1e293b",
+                    }}
+                  >
+                    {s.name}
+                  </div>
+                  <div style={{ fontSize: "12px", color: "#94a3b8" }}>
+                    {s.id}
                   </div>
                 </div>
               </label>
@@ -89,14 +138,17 @@ export default function AssignStudentModal({
           )}
         </div>
 
-        <div className="flex gap-3 mt-6 pt-6 border-t border-gray-100">
-          <button onClick={() => setShowAssignModal(false)} className="flex-1 px-4 py-3.5 bg-gray-100 text-gray-700 font-bold rounded-xl hover:bg-gray-200 transition-colors">
+        <div className="modal-actions">
+          <button
+            className="btn-cancel"
+            onClick={() => setShowAssignModal(false)}
+          >
             Hủy
           </button>
           <button
-            onClick={handleSubmit}
+            className="btn-save"
+            onClick={handleConfirm}
             disabled={selectedIds.length === 0}
-            className="flex-1 px-4 py-3.5 bg-[#083c96] text-white font-bold rounded-xl hover:bg-blue-900 transition-colors disabled:opacity-50"
           >
             Xác nhận thêm ({selectedIds.length})
           </button>

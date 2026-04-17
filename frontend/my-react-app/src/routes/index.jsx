@@ -8,9 +8,12 @@ import Login from "../pages/auth/Login";
 // ===  ADMIN ===
 import Dashboard from "../pages/admin/Dashboard";
 import Classes from "../pages/admin/Classes";
+import ClassForm from "../pages/admin/ClassForm";
 import RegisterFace from "../pages/admin/RegisterFace";
 import Students from "../pages/admin/Students";
 import AdminAttendanceHistory from "../pages/admin/AttendanceHistory";
+import StudentEdit from "../pages/admin/StudentEdit";
+
 
 // === GIÁO VIÊN ===
 import Attendance from "../pages/teacher/Attendance";
@@ -46,6 +49,18 @@ export const routes = [
           {
             path: "students",
             element: <Students />,
+          },
+          {
+            path: "classes/add",
+            element: <ClassForm />,
+          },
+          {
+            path: "classes/edit/:id",
+            element: <ClassForm />,
+          },
+          {
+            path: "students/edit/:id",
+            element: <StudentEdit />,
           },
           {
             path: "register-face",

@@ -1,16 +1,10 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "../../context/AuthContext";
-import {
-  Eye,
-  EyeOff,
-  Loader2,
-  Lock,
-  ArrowRight,
-  Smile,
-  AtSign,
-} from "lucide-react";
 import { toast } from "sonner";
+
+// Import CSS thuần cho Login
+import "../../assets/styles/auth.style.css";
 
 export default function Login() {
   const [email, setEmail] = useState("");
@@ -33,11 +27,11 @@ export default function Login() {
         const userData = JSON.parse(localStorage.getItem("user"));
         navigate(userData?.role === "admin" ? "/admin" : "/teacher");
       } else {
-        setError("Email hoặc mật khẩu không đúng");
+        setError("Email hoặc mật khẩu không chính xác");
         toast.error("Đăng nhập thất bại");
       }
     } catch (err) {
-      setError("Đã xảy ra lỗi. Vui lòng thử lại");
+      setError("Hệ thống đang bận. Vui lòng thử lại sau");
       toast.error("Đã xảy ra lỗi");
     } finally {
       setIsLoading(false);
@@ -45,138 +39,97 @@ export default function Login() {
   };
 
   return (
-    <div className="min-h-screen bg-[#f8f9fa] flex items-center justify-center p-4 font-sans">
-      <div className="w-full max-w-[420px]">
-        <div className="bg-white rounded-3xl shadow-[0_8px_30px_rgb(0,0,0,0.04)] p-8 2xl:p-10">
-          <div className="flex flex-col items-center mb-8">
-            <div className="w-14 h-14 bg-[#083c96] rounded-2xl flex items-center justify-center mb-4">
-              <Smile className="w-8 h-8 text-white" strokeWidth={2.5} />
+    <div className="login-container">
+      <div className="login-card">
+        <header className="login-header">
+          <div className="logo-wrapper">
+            <i className="fa-solid fa-face-smile" style={{ fontSize: '32px' }}></i>
+          </div>
+          <h1 className="login-title">Ứng Dụng Điểm Danh</h1>
+          <p className="login-subtitle">Chào mừng bạn quay trở lại</p>
+        </header>
+
+        {error && (
+          <div className="error-alert">
+            <i className="fa-solid fa-circle-exclamation" style={{ marginRight: '8px' }}></i>
+            {error}
+          </div>
+        )}
+
+        <form onSubmit={handleSubmit} className="login-form">
+          <div className="form-group">
+            <label htmlFor="email">Email</label>
+            <div className="input-wrapper">
+              <i className="fa-solid fa-at input-icon-left"></i>
+              <input
+                id="email"
+                type="email"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                className="login-input"
+                placeholder="nguyenvan@facecheck.vn"
+                required
+              />
             </div>
-            <h1 className="text-2xl font-bold text-[#083c96] mb-2 tracking-tight">
-              Ứng Dựng Điểm Danh
-            </h1>
-            <p className="text-[15px] text-gray-500">
-              Chào mừng bạn quay trở lại ứng dụng
-            </p>
           </div>
 
-          {error && (
-            <div className="mb-6 p-3 bg-red-50 border border-red-100 rounded-xl text-sm text-red-600 text-center">
-              {error}
-            </div>
-          )}
-
-          <form onSubmit={handleSubmit} className="space-y-5">
-            <div>
-              <label
-                htmlFor="email"
-                className="block mb-2 text-xs font-bold text-gray-600 uppercase tracking-wide"
+          <div className="form-group">
+            <label htmlFor="password">Mật khẩu</label>
+            <div className="input-wrapper">
+              <i className="fa-solid fa-lock input-icon-left"></i>
+              <input
+                id="password"
+                type={showPassword ? "text" : "password"}
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                className="login-input"
+                placeholder="********"
+                required
+              />
+              <button
+                type="button"
+                onClick={() => setShowPassword(!showPassword)}
+                className="password-toggle"
               >
-                Email
-              </label>
-              <div className="relative">
-                <AtSign className="absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
-                <input
-                  id="email"
-                  type="email"
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
-                  className="w-full pl-12 pr-4 py-3.5 bg-[#f4f4f5] text-gray-800 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#083c96] transition-all"
-                  placeholder="nguyenvan@facecheck.vn"
-                  required
-                />
-              </div>
+                <i className={`fa-solid ${showPassword ? "fa-eye-slash" : "fa-eye"}`}></i>
+              </button>
             </div>
-
-            <div>
-              <label
-                htmlFor="password"
-                className="block mb-2 text-xs font-bold text-gray-600 uppercase tracking-wide"
-              >
-                Mật khẩu
-              </label>
-              <div className="relative">
-                <Lock className="absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
-                <input
-                  id="password"
-                  type={showPassword ? "text" : "password"}
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)}
-                  className="w-full pl-12 pr-12 py-3.5 bg-[#f4f4f5] text-gray-800 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#083c96] transition-all"
-                  placeholder="********"
-                  required
-                />
-                <button
-                  type="button"
-                  onClick={() => setShowPassword(!showPassword)}
-                  className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 transition-colors"
-                >
-                  {showPassword ? (
-                    <EyeOff className="w-5 h-5" />
-                  ) : (
-                    <Eye className="w-5 h-5" />
-                  )}
-                </button>
-              </div>
-            </div>
-
-            <div className="flex items-center justify-between pt-1 pb-2">
-              <label className="flex items-center cursor-pointer gap-2">
-                <input
-                  type="checkbox"
-                  checked={rememberMe}
-                  onChange={(e) => setRememberMe(e.target.checked)}
-                  className="w-4 h-4 text-[#083c96] border-gray-300 rounded focus:ring-[#083c96]"
-                />
-                <span className="text-sm text-gray-600">Ghi nhớ đăng nhập</span>
-              </label>
-
-              <a
-                href="#"
-                className="text-sm text-[#083c96] font-semibold hover:underline"
-              >
-                Quên mật khẩu?
-              </a>
-            </div>
-
-            <button
-              type="submit"
-              disabled={isLoading}
-              className="w-full bg-[#083c96] text-white py-3.5 rounded-xl font-semibold hover:bg-blue-900 transition-colors disabled:opacity-70 disabled:cursor-not-allowed flex items-center justify-center gap-2 shadow-sm"
-            >
-              {isLoading ? (
-                <>
-                  <Loader2 className="w-5 h-5 animate-spin" />
-                  Đang xử lý...
-                </>
-              ) : (
-                <>
-                  Đăng nhập
-                  <ArrowRight className="w-5 h-5" />
-                </>
-              )}
-            </button>
-          </form>
-
-          <div className="mt-8">
-            <div className="relative flex items-center justify-center mb-6">
-              <div className="absolute inset-0 flex items-center">
-                <div className="w-full border-t border-gray-200"></div>
-              </div>
-              <div className="relative bg-white px-4 text-[10px] font-bold text-gray-400 uppercase tracking-widest">
-                Hỗ trợ
-              </div>
-            </div>
-            <p className="text-center text-sm text-gray-500">
-              Gặp sự cố khi đăng nhập?{" "}
-              <a
-                href="#"
-                className="text-[#083c96] font-semibold hover:underline"
-              >
-                Liên hệ hỗ trợ
-              </a>
-            </p>
           </div>
+
+          <div className="form-options">
+            <label className="remember-me">
+              <input
+                type="checkbox"
+                checked={rememberMe}
+                onChange={(e) => setRememberMe(e.target.checked)}
+              />
+              <span>Ghi nhớ đăng nhập</span>
+            </label>
+            <a href="#" className="forgot-password">Quên mật khẩu?</a>
+          </div>
+
+          <button type="submit" disabled={isLoading} className="submit-btn">
+            {isLoading ? (
+              <>
+                <i className="fa-solid fa-spinner fa-spin"></i>
+                <span>Đang xử lý...</span>
+              </>
+            ) : (
+              <>
+                <span>Đăng nhập</span>
+                <i className="fa-solid fa-arrow-right"></i>
+              </>
+            )}
+          </button>
+        </form>
+
+        <div className="support-section">
+          <div className="support-divider">
+            <span className="divider-text">Hỗ trợ</span>
+          </div>
+          <p className="footer-text">
+            Gặp sự cố khi đăng nhập? <a href="#">Liên hệ hỗ trợ</a>
+          </p>
         </div>
       </div>
     </div>
