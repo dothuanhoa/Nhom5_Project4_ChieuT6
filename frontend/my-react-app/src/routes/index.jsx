@@ -3,10 +3,9 @@ import TeacherLayout from "../layout/TeacherLayout";
 import PrivateRoutes from "../components/PrivateRoutes";
 import { Navigate } from "react-router-dom";
 
-import Login from "../pages/auth/Login";
+import Login from "../pages/auth";
 
 // ===  ADMIN ===
-import Dashboard from "../pages/admin/Dashboard";
 import Classes from "../pages/admin/Classes";
 import ClassForm from "../pages/admin/ClassForm";
 import RegisterFace from "../pages/admin/RegisterFace";
@@ -40,7 +39,7 @@ export const routes = [
         children: [
           {
             index: true,
-            element: <Dashboard />,
+            element: <Navigate to="/admin/classes" />,
           },
           {
             path: "classes",

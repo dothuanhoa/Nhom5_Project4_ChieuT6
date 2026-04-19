@@ -1,8 +1,8 @@
 import React, { useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { toast } from "sonner";
-import { classService } from "../../services/api_Admin";
-import "../../assets/styles/admin.style.css";
+import { classService } from "../../../services/api_Admin";
+import "./ClassForm.css";
 
 export default function ClassForm() {
   const { id } = useParams();
@@ -123,7 +123,7 @@ export default function ClassForm() {
                 }
               >
                 <option value="active">Hoạt động</option>
-                <option value="inactive">Ngưng hoạt động</option>
+                <option value="inactive">Tạm dừng</option>
               </select>
             </div>
           </div>

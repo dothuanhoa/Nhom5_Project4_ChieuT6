@@ -1,0 +1,322 @@
+/* src/pages/AttendanceHistory/AttendanceHistory.css */
+
+/* --- PAGE HEADER --- */
+.page-header {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  margin-bottom: 24px;
+  gap: 16px;
+}
+
+@media (min-width: 640px) {
+  .page-header {
+    flex-direction: row;
+    align-items: center;
+  }
+}
+
+.title-page {
+  font-size: 28px;
+  font-weight: 700;
+  color: var(--admin-blue);
+  letter-spacing: -0.02em;
+}
+
+.btn-primary {
+  padding: 10px 20px;
+  border-radius: 12px;
+  background: var(--admin-blue);
+  color: #fff;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  transition: 0.3s;
+}
+
+.btn-primary:hover:not(:disabled) {
+  background: #06317a;
+  transform: translateY(-2px);
+}
+
+.btn-primary:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+/* --- FILTER SECTION (BỘ LỌC) --- */
+.table-wrapper {
+  background: #fff;
+  border-radius: 24px;
+  box-shadow: var(--shadow-sm);
+  border: 1px solid var(--border-color);
+  overflow: hidden;
+  margin-bottom: 24px;
+}
+
+.table-wrapper.filters {
+  padding: 24px;
+}
+
+.form-grid.filters {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 20px;
+  align-items: end; /* Căn dưới để nút bấm thẳng hàng với input */
+}
+
+.form-group.no-margin {
+  margin-bottom: 0;
+}
+
+.form-label {
+  display: block;
+  font-size: 14px;
+  font-weight: 700;
+  color: #64748b;
+  margin-bottom: 8px;
+}
+
+.input-field {
+  width: 100%;
+  padding: 12px 16px;
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+  border-radius: 12px;
+  font-size: 14px;
+  font-weight: 500;
+  outline: none;
+  transition: 0.3s;
+  color: var(--text-main);
+}
+
+.input-field:focus {
+  background: #fff;
+  border-color: var(--admin-blue);
+}
+
+.form-actions-row {
+  display: flex;
+  gap: 12px;
+}
+
+.btn-secondary {
+  padding: 12px 24px;
+  border-radius: 12px;
+  background: #f1f5f9;
+  color: var(--text-main);
+  font-weight: 700;
+  transition: 0.2s;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+}
+
+.btn-secondary:hover:not(:disabled) {
+  background: #e2e8f0;
+}
+
+.btn-secondary:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.btn-refresh {
+  width: 100%;
+  height: 45px; /* Chiều cao đồng bộ với input */
+}
+
+/* --- SEARCH & TABLE HEADER --- */
+.search-filter-section {
+  padding: 24px;
+  border-bottom: 1px solid #f1f5f9;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+@media (min-width: 640px) {
+  .search-filter-section {
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-between;
+  }
+}
+
+.detail-title {
+  font-weight: 800;
+  font-size: 18px;
+  color: var(--text-main);
+}
+
+.search-input-box {
+  position: relative;
+  width: 100%;
+  max-width: 320px;
+}
+
+.search-input-box i {
+  position: absolute;
+  left: 16px;
+  top: 50%;
+  transform: translateY(-50%);
+  color: #94a3b8;
+}
+
+.search-input-box input {
+  width: 100%;
+  padding: 10px 16px 10px 42px;
+  background: #f8fafc;
+  border: 1px solid transparent;
+  border-radius: 12px;
+  font-size: 14px;
+  transition: all 0.2s;
+}
+
+.search-input-box input:focus {
+  background: #fff;
+  border-color: var(--admin-blue);
+  outline: none;
+}
+
+/* --- TABLE STYLES --- */
+.admin-table-container {
+  overflow-x: auto;
+}
+
+.admin-table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.admin-table th {
+  padding: 16px 24px;
+  text-align: left;
+  font-size: 11px;
+  font-weight: 700;
+  color: #94a3b8;
+  letter-spacing: 0.1em;
+  background: #fff;
+  border-bottom: 1px solid #f1f5f9;
+  text-transform: uppercase;
+}
+
+.admin-table td {
+  padding: 16px 24px;
+  font-size: 15px;
+  color: var(--text-main);
+  border-bottom: 1px solid #f8fafc;
+  vertical-align: middle;
+}
+
+.admin-table tr:hover td {
+  background-color: #fcfdfe;
+}
+
+/* --- TABLE CONTENT CELLS --- */
+.text-center-th,
+.text-center {
+  text-align: center;
+}
+
+.bold-text {
+  font-weight: 700;
+  color: var(--text-main);
+}
+
+.small-muted {
+  font-size: 12px;
+  color: #94a3b8;
+  margin-top: 4px;
+}
+
+.uppercase {
+  text-transform: uppercase;
+}
+
+.student-info-cell {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.student-avatar-circle {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background: #eff6ff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--admin-blue);
+}
+
+.student-id-cell,
+.time-cell {
+  display: flex;
+  flex-direction: column;
+}
+
+.similarity-score {
+  font-family: monospace;
+  font-weight: 900;
+  color: var(--admin-blue);
+  font-size: 16px;
+  background: #f8fafc;
+  padding: 4px 10px;
+  border-radius: 8px;
+}
+
+/* --- STATUS BADGES --- */
+.stat-badge {
+  font-size: 12px;
+  font-weight: 700;
+  padding: 6px 12px;
+  border-radius: 100px;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.stat-badge.success {
+  background-color: #f0fdf4;
+  color: #166534;
+}
+
+.stat-badge.neutral {
+  background-color: #fff7ed;
+  color: #ea580c; /* Chỉnh màu Cam cho trạng thái "Đi muộn" */
+}
+
+.stat-badge.danger {
+  background-color: #fef2f2;
+  color: #991b1b;
+}
+
+/* --- PAGINATION --- */
+.table-footer.attendance {
+  padding: 20px 32px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background: #fff;
+}
+
+.page-info {
+  font-size: 12px;
+  font-weight: 800;
+  color: #94a3b8;
+  letter-spacing: 0.05em;
+}
+
+.pagination-buttons {
+  display: flex;
+  gap: 8px;
+}
+
+.btn-page {
+  padding: 8px 16px;
+  font-size: 13px;
+}

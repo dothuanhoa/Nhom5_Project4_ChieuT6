@@ -4,7 +4,7 @@ import { useAuth } from "../../context/AuthContext";
 import { toast } from "sonner";
 
 // Import CSS thuần cho Login
-import "../../assets/styles/auth.style.css";
+import "./Auth.css";
 
 export default function Login() {
   const [email, setEmail] = useState("");
@@ -43,7 +43,7 @@ export default function Login() {
       <div className="login-card">
         <header className="login-header">
           <div className="logo-wrapper">
-            <i className="fa-solid fa-face-smile" style={{ fontSize: '32px' }}></i>
+            <i className="fa-solid fa-face-smile login-logo-icon"></i>
           </div>
           <h1 className="login-title">Ứng Dụng Điểm Danh</h1>
           <p className="login-subtitle">Chào mừng bạn quay trở lại</p>
@@ -51,7 +51,7 @@ export default function Login() {
 
         {error && (
           <div className="error-alert">
-            <i className="fa-solid fa-circle-exclamation" style={{ marginRight: '8px' }}></i>
+            <i className="fa-solid fa-circle-exclamation error-icon"></i>
             {error}
           </div>
         )}

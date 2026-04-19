@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { studentService, classService } from "../services/api_Admin";
 import { toast } from "sonner";
-import "../assets/styles/admin.style.css"; // Hãy kiểm tra lại đường dẫn này
+import "../layout/AdminLayout/AdminLayout.css"; // Hãy kiểm tra lại đường dẫn này
 
 export default function AssignStudentModal({
   showAssignModal,
@@ -60,7 +60,7 @@ export default function AssignStudentModal({
         <div className="modal-header">
           <div>
             <h3 className="modal-title">Thêm sinh viên vào lớp</h3>
-            <p style={{ fontSize: "13px", color: "#64748b", marginTop: "4px" }}>
+            <p className="modal-subtitle">
               {selectedClass.courseName} - Nhóm {selectedClass.group}
             </p>
           </div>
@@ -72,8 +72,8 @@ export default function AssignStudentModal({
           </button>
         </div>
 
-        <div style={{ padding: "20px 32px 10px" }}>
-          <div className="search-input-box" style={{ width: "100%" }}>
+        <div className="modal-body">
+          <div className="search-input-box full-row">
             <i className="fa-solid fa-magnifying-glass"></i>
             <input
               placeholder="Tìm mã SV, tên sinh viên..."
@@ -83,33 +83,17 @@ export default function AssignStudentModal({
           </div>
         </div>
 
-        <div
-          style={{ maxHeight: "350px", overflowY: "auto", padding: "0 32px" }}
-        >
+        <div className="scrollable-list">
           {loading ? (
             <div className="loader-container">
               <div className="spinner"></div>
             </div>
           ) : (
             filtered.map((s) => (
-              <label
-                key={s.id}
-                style={{
-                  display: "flex",
-                  alignItems: "center",
-                  gap: "15px",
-                  padding: "12px 0",
-                  borderBottom: "1px solid #f8fafc",
-                  cursor: "pointer",
-                }}
-              >
+              <label key={s.id} className="student-row">
                 <input
                   type="checkbox"
-                  style={{
-                    width: "18px",
-                    height: "18px",
-                    accentColor: "var(--admin-blue)",
-                  }}
+                  className="student-checkbox"
                   checked={selectedIds.includes(s.id)}
                   onChange={() =>
                     setSelectedIds((prev) =>
@@ -120,18 +104,8 @@ export default function AssignStudentModal({
                   }
                 />
                 <div>
-                  <div
-                    style={{
-                      fontWeight: 700,
-                      fontSize: "14px",
-                      color: "#1e293b",
-                    }}
-                  >
-                    {s.name}
-                  </div>
-                  <div style={{ fontSize: "12px", color: "#94a3b8" }}>
-                    {s.id}
-                  </div>
+                  <div className="student-row-name">{s.name}</div>
+                  <div className="student-row-meta">{s.id}</div>
                 </div>
               </label>
             ))
