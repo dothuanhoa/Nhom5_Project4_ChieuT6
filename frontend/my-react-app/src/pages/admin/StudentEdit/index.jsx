@@ -90,7 +90,7 @@ export default function StudentEdit() {
         <h2 className="dashboard-title">Chỉnh sửa hồ sơ sinh viên</h2>
       </div>
 
-      <div className="edit-card">
+      <div className="edit-card edit-form-students">
         <form onSubmit={handleSubmit}>
           <div className="form-group">
             <label className="form-label">Mã sinh viên (Không thể sửa)</label>

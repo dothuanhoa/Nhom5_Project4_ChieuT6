@@ -1,6 +1,4 @@
-/* src/pages/Teacher/Attendance/Attendance.css */
 
-/* --- LAYOUT CHÍNH --- */
 .attendance-container {
   padding: 24px;
   display: flex;
@@ -10,17 +8,10 @@
 }
 
 @keyframes fadeIn {
-  from {
-    opacity: 0;
-    transform: translateY(10px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: translateY(0); }
 }
 
-/* --- HEADER: CHỌN LỚP & THÔNG TIN --- */
 .attendance-header {
   display: flex;
   justify-content: space-between;
@@ -35,7 +26,6 @@
   flex: 1;
 }
 
-/* MỚI: Style cho Dropdown chọn lớp học */
 .select-class-wrapper {
   position: relative;
   display: inline-block;
@@ -47,7 +37,7 @@
   border: none;
   font-size: 28px;
   font-weight: 800;
-  color: var(--admin-blue);
+  color: #2563eb;
   padding-right: 40px;
   cursor: pointer;
   outline: none;
@@ -62,7 +52,7 @@
   top: 50%;
   transform: translateY(-50%);
   font-size: 20px;
-  color: var(--admin-blue);
+  color: #2563eb;
   pointer-events: none;
 }
 
@@ -77,6 +67,7 @@
   color: #94a3b8;
   letter-spacing: 1px;
   margin-bottom: 4px;
+  text-transform: uppercase;
 }
 
 .class-info-sub .value {
@@ -85,7 +76,6 @@
   color: #1e293b;
 }
 
-/* --- GRID CHIA CỘT --- */
 .attendance-grid {
   display: grid;
   grid-template-columns: 7fr 5fr;
@@ -94,12 +84,9 @@
 }
 
 @media (max-width: 1100px) {
-  .attendance-grid {
-    grid-template-columns: 1fr;
-  }
+  .attendance-grid { grid-template-columns: 1fr; }
 }
 
-/* --- PHẦN CAMERA --- */
 .camera-section-wrapper {
   position: relative;
   background: #0a0a0a;
@@ -117,7 +104,7 @@
   width: 100%;
   height: 100%;
   object-fit: cover;
-  transform: scaleX(-1); /* Lật gương camera */
+  transform: scaleX(-1);
 }
 
 .camera-placeholder {
@@ -125,43 +112,8 @@
   color: #262626;
 }
 
-.camera-placeholder i {
-  font-size: 60px;
-  margin-bottom: 16px;
-}
-
-.camera-placeholder p {
-  font-size: 14px;
-  font-weight: 600;
-  letter-spacing: 0.5px;
-  color: #525252;
-}
-
-/* Hiệu ứng tia quét */
-.scanning-line {
-  position: absolute;
-  width: 100%;
-  height: 3px;
-  background: linear-gradient(
-    to right,
-    transparent,
-    var(--admin-blue),
-    transparent
-  );
-  top: 0;
-  z-index: 5;
-  box-shadow: 0 0 15px var(--admin-blue);
-  animation: scanMove 2.5s infinite linear;
-}
-
-@keyframes scanMove {
-  0% {
-    top: 0%;
-  }
-  100% {
-    top: 100%;
-  }
-}
+.camera-placeholder i { font-size: 60px; margin-bottom: 16px; }
+.camera-placeholder p { font-size: 14px; font-weight: 600; color: #525252; }
 
 .camera-actions {
   position: absolute;
@@ -195,8 +147,6 @@
   opacity: 0.8;
   cursor: not-allowed;
 }
-
-/* --- KẾT QUẢ NHẬN DIỆN --- */
 .result-section-card {
   background: #fff;
   border-radius: 28px;
@@ -205,6 +155,7 @@
   display: flex;
   flex-direction: column;
   box-shadow: 0 4px 20px rgba(0, 0, 0, 0.02);
+  max-height: 600px
 }
 
 .section-title {
@@ -213,14 +164,14 @@
   display: flex;
   align-items: center;
   gap: 10px;
-  margin-bottom: 30px;
+  margin-bottom: 20px;
   color: #0f172a;
 }
 
 .section-title .indicator {
   width: 4px;
   height: 18px;
-  background: var(--admin-blue);
+  background: #2563eb;
   border-radius: 10px;
 }
 
@@ -233,122 +184,103 @@
   color: #cbd5e1;
 }
 
-.empty-result-state i {
-  font-size: 50px;
-  margin-bottom: 20px;
-  opacity: 0.3;
-}
+.empty-result-state i { font-size: 50px; margin-bottom: 20px; opacity: 0.3; }
 
-.result-content-view {
+/* VÙNG CUỘN DANH SÁCH SINH VIÊN */
+.students-list-scroller {
+  flex: 1;
+  overflow-y: auto;
+  padding-right: 10px;
   display: flex;
   flex-direction: column;
-  flex: 1;
+  gap: 24px; /* Khoảng cách giữa các khối sinh viên */
 }
 
-.photo-comparison {
-  display: flex;
-  justify-content: center;
-  gap: 20px;
-  margin-bottom: 30px;
+/* Style thanh cuộn */
+.students-list-scroller::-webkit-scrollbar {
+  width: 6px;
+}
+.students-list-scroller::-webkit-scrollbar-track {
+  background: #f1f5f9;
+  border-radius: 10px;
+}
+.students-list-scroller::-webkit-scrollbar-thumb {
+  background: #cbd5e1;
+  border-radius: 10px;
 }
 
-.avatar-placeholder {
-  width: 100px;
-  height: 100px;
-  border-radius: 20px;
+/* KHỐI ITEM CỦA TỪNG SINH VIÊN */
+.student-result-item {
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+  border-radius: 16px;
+  padding: 20px;
+  animation: fadeIn 0.3s ease;
+}
+
+/* Thông tin Trái - Phải bên trong item */
+.info-row {
   display: flex;
+  justify-content: space-between;
   align-items: center;
-  justify-content: center;
-  font-size: 36px;
-  font-weight: 900;
+  margin-bottom: 20px;
 }
 
-.avatar-placeholder.legacy {
-  background: #ea580c; /* Thay màu cam cho chữ viết tắt tên */
-  color: #fff;
-}
+.info-left { text-align: left; }
+.info-left .id-text { font-size: 14px; color: #64748b; margin: 0 0 6px 0; }
+.info-left .id-text strong { color: #1e293b; }
+.info-left .name { font-size: 20px; color: #2563eb; margin: 0; font-weight: 800; }
 
-.avatar-placeholder.scanned {
-  border: 2px solid #3b82f6;
-  background: #eff6ff;
-  color: #3b82f6;
+.info-right { display: flex; }
+.similarity-box {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  background: #ecfdf5;
+  padding: 8px 16px;
+  border-radius: 12px;
+  border: 1px solid #a7f3d0;
 }
-
-.student-detail-info {
-  text-align: center;
-  margin-bottom: 25px;
-}
-
-.student-detail-info .name {
-  font-size: 26px;
+.similarity-box .sim-label {
+  font-size: 11px;
+  color: #059669;
   font-weight: 700;
-  color: #0f172a;
+  text-transform: uppercase;
   margin-bottom: 4px;
 }
+.similarity-box .sim-value { font-size: 20px; color: #047857; font-weight: 800; }
 
-.student-detail-info .id-text {
-  color: #64748b;
-  font-weight: 700;
-  font-size: 15px;
-}
-
-.similarity-badge {
-  background: #f8fafc;
-  padding: 14px;
-  border-radius: 16px;
-  text-align: center;
-  margin-top: auto;
-  border: 1px solid #f1f5f9;
-}
-
-.similarity-badge span {
-  font-size: 13px;
-  color: #64748b;
-  font-weight: 600;
-  margin-right: 10px;
-}
-
-.similarity-badge strong {
-  color: var(--success); /* Đổi màu xanh lá cho điểm chính xác */
-  font-size: 22px;
-}
-
-.result-actions {
+/* 2 NÚT BẤM CỦA TỪNG ITEM */
+.action-row {
   display: flex;
-  gap: 12px;
-  margin-top: 30px;
+  gap: 12px; 
 }
 
-.btn-rescan {
-  width: 56px;
-  height: 56px;
-  background: #f1f5f9;
-  border-radius: 16px;
-  color: #64748b;
-  font-size: 18px;
-  border: none;
-  cursor: pointer;
-  transition: 0.2s;
-}
-
-.btn-rescan:hover {
-  background: #e2e8f0;
-  color: var(--admin-blue);
-}
-
-.btn-confirm {
-  flex: 1;
-  background: var(--admin-blue);
-  color: #fff;
-  border-radius: 16px;
-  font-weight: 800;
+.btn-cancel-scan {
+  flex: 1; 
+  padding: 12px;
+  background: #fff;
+  color: #ef4444; /* Màu đỏ cho nút Hủy */
+  border: 1px solid #fca5a5;
+  border-radius: 10px;
+  font-weight: 700;
   font-size: 14px;
-  border: none;
   cursor: pointer;
-  transition: 0.2s;
+  transition: all 0.2s ease;
 }
+.btn-cancel-scan:hover { background: #fef2f2; }
 
-.btn-confirm:hover {
-  background: #06317a;
-  transform: translateY(-2px);
+.btn-confirm-scan {
+  flex: 1; 
+  padding: 12px;
+  background: #2563eb;
+  color: white;
+  border: none;
+  border-radius: 10px;
+  font-weight: 700;
+  font-size: 14px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  box-shadow: 0 4px 12px rgba(37, 99, 235, 0.2);
 }
+.btn-confirm-scan:hover { background: #1d4ed8; transform: translateY(-2px); }

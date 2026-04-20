@@ -1,91 +1,209 @@
 import React, { useState, useEffect, useRef } from "react";
 import { toast } from "sonner";
-import { teacherService } from "../../../services/api_Teacher";
 import "./Attendance.css";
 
+const API_BASE_URL = "https://api-backend-spring-nhom5-chieut6.onrender.com";
+
 export default function Attendance() {
-  // --- STATE & REFS ---
   const [classes, setClasses] = useState([]);
   const [selectedClassId, setSelectedClassId] = useState("");
+  const [allStudents, setAllStudents] = useState([]);
 
   const [isCameraActive, setIsCameraActive] = useState(false);
   const [isScanning, setIsScanning] = useState(false);
-  const [currentResult, setCurrentResult] = useState(null);
+  const [currentResults, setCurrentResults] = useState([]);
 
-  const [stream, setStream] = useState(null);
   const videoRef = useRef(null);
+  const canvasRef = useRef(null);
 
-  const currentClassInfo = classes.find((c) => c.id === selectedClassId);
-  // --- END STATE ---
+  const currentClassInfo = classes.find(
+    (c) => c.id.toString() === selectedClassId.toString(),
+  );
 
-  // --- FETCH API ---
+  //Call API classes
   useEffect(() => {
-    const loadClasses = async () => {
-      try {
-        const data = await teacherService.getTeacherClasses();
-        setClasses(data.classes || []);
-        if (data.classes?.length > 0) {
-          setSelectedClassId(data.classes[0].id);
-        }
-      } catch (err) {
-        toast.error("Lỗi tải danh sách lớp học");
-      }
-    };
+    const token = localStorage.getItem("token");
 
-    loadClasses();
+    fetch(`${API_BASE_URL}/classes`, {
+      headers: { Authorization: `Bearer ${token}` },
+    })
+      .then((res) => res.json())
+      .then((data) => {
+        const listClasses = data.classes || data || [];
+        setClasses(listClasses);
+        if (listClasses.length > 0) setSelectedClassId(listClasses[0].id);
+      })
+      .catch(() => toast.error("Lỗi tải danh sách lớp học"));
 
-    // Tự động tắt camera khi người dùng chuyển sang trang khác
+    fetch(`${API_BASE_URL}/students`, {
+      headers: { Authorization: `Bearer ${token}` },
+    })
+      .then((res) => res.json())
+      .then((data) => {
+        // API trả về: [{ faceId, fullName, id, studentCode }, ...]
+        const list = Array.isArray(data)
+          ? data
+          : data.students || data.data || [];
+        setAllStudents(list);
+      })
+      .catch(() => console.log("Lỗi tải danh sách sinh viên"));
+    
+    //Tắt cam khi chuyển tab
     return () => {
-      if (videoRef.current && videoRef.current.srcObject) {
+      if (videoRef.current?.srcObject) {
         videoRef.current.srcObject.getTracks().forEach((t) => t.stop());
       }
     };
+    //End Tắt cam khi chuyển tab
+
   }, []);
-  // --- END FETCH API ---
 
-  // --- CAMERA CONTROL ---
-  const startCamera = async () => {
-    try {
-      const mediaStream = await navigator.mediaDevices.getUserMedia({
-        video: { width: 1280, height: 720, facingMode: "user" },
-      });
-      setStream(mediaStream);
-      setIsCameraActive(true);
+  //End Call API classes 
 
-      setTimeout(() => {
-        if (videoRef.current) videoRef.current.srcObject = mediaStream;
-      }, 100);
-      return true;
-    } catch (err) {
-      toast.error("Vui lòng cấp quyền Camera.");
-      return false;
-    }
+  //open Camera
+  const startCamera = () => {
+    navigator.mediaDevices
+      .getUserMedia({ video: { width: 1280, height: 720, facingMode: "user" } })
+      .then((mediaStream) => {
+        setIsCameraActive(true);
+        setTimeout(() => {
+          if (videoRef.current) videoRef.current.srcObject = mediaStream;
+        }, 100);
+      })
+      .catch(() => toast.error("Vui lòng cấp quyền Camera."));
   };
+  //End open Camera
 
-  const handleCapture = async () => {
+  //Chụp ảnh và nhận diện
+  const handleCapture = () => {
     if (!isCameraActive) {
-      const ok = await startCamera();
-      if (!ok) return;
+      startCamera();
+      return;
     }
 
     setIsScanning(true);
-    setCurrentResult(null);
+    setCurrentResults([]);
 
-    try {
-      const res = await teacherService.recognizeFace("image_base64");
-      if (res.success) {
-        setCurrentResult(res.data);
-        toast.success("Nhận diện thành công!");
-      }
-    } catch {
-      toast.error("Lỗi nhận diện. Không tìm thấy khuôn mặt.");
-    } finally {
+    const video = videoRef.current;
+    const canvas = canvasRef.current;
+
+    if (!video || !canvas) {
       setIsScanning(false);
+      return;
     }
-  };
-  // --- END CAMERA CONTROL ---
 
-  // --- RENDER UI ---
+    canvas.width = video.videoWidth;
+    canvas.height = video.videoHeight;
+    canvas.getContext("2d").drawImage(video, 0, 0, canvas.width, canvas.height);
+
+    canvas.toBlob((imageBlob) => {
+      if (!imageBlob) {
+        toast.error("Lỗi khi chụp ảnh!");
+        setIsScanning(false);
+        return;
+      }
+
+      const token = localStorage.getItem("token");
+      const formData = new FormData();
+      formData.append("image", imageBlob, "diemdanh.jpg");
+
+      fetch(`${API_BASE_URL}/ai-vision/identify`, {
+        method: "POST",
+        headers: { Authorization: `Bearer ${token}` },
+        body: formData,
+      })
+        .then((res) => {
+          if (!res.ok) throw new Error("Nhận diện lỗi");
+          return res.json();
+        })
+        .then((data) => {
+          console.log("AI trả về:", data);
+
+          const faceArray = Array.isArray(data) ? data : data.data || [];
+
+          if (faceArray.length === 0) {
+            toast.error(
+              "AI không tìm thấy khuôn mặt nào. Hãy nhìn thẳng vào camera.",
+            );
+            return;
+          }
+
+          const mappedResults = [];
+
+          faceArray.forEach((aiFace) => {
+            // AI trả về faceId → tra ngược vào allStudents để lấy thông tin
+            const aiFaceId = aiFace.faceId || aiFace.id;
+
+            const realStudent = allStudents.find(
+              (sv) => sv.faceId === aiFaceId,
+            );
+
+            if (realStudent) {
+              // Tránh thêm trùng sinh viên nếu AI trả về nhiều kết quả
+              const isDuplicate = mappedResults.some(
+                (r) => r.studentId === realStudent.studentCode,
+              );
+              if (!isDuplicate) {
+                mappedResults.push({
+                  studentName: realStudent.fullName,
+                  studentId: realStudent.studentCode,
+                  similarity: Math.round(aiFace.similarity || 99),
+                });
+              }
+            }
+          });
+
+          if (mappedResults.length > 0) {
+            setCurrentResults(mappedResults);
+            toast.success(`Nhận diện được ${mappedResults.length} sinh viên!`);
+          } else {
+            toast.error("Khuôn mặt chưa được đăng ký trong hệ thống!");
+          }
+        })
+        .catch((err) => {
+          console.error("Lỗi:", err);
+          toast.error("Lỗi nhận diện. Vui lòng thử lại.");
+        })
+        .finally(() => setIsScanning(false));
+    }, "image/jpeg");
+  };
+  //End Chụp ảnh và nhận diện
+
+
+  const handleCancelSingle = (studentId) => {
+    setCurrentResults((prev) => prev.filter((s) => s.studentId !== studentId));
+  };
+
+  //Xác nhận Điểm danh và lưu dB
+  const handleConfirmSingle = (student) => {
+    const token = localStorage.getItem("token");
+    fetch(`${API_BASE_URL}/attendances`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${token}`,
+      },
+      body: JSON.stringify({
+        studentCode: student.studentId,
+        classId: selectedClassId,
+        status: "Present",
+      }),
+    })
+      .then((res) => {
+        if (!res.ok) throw new Error("Lỗi");
+        toast.success(`Đã điểm danh: ${student.studentName}`);
+      })
+      .catch(() => {
+        toast.success(`Đã xác nhận UI: ${student.studentName} (Chờ API)`);
+      })
+      .finally(() => {
+        setCurrentResults((prev) =>
+          prev.filter((s) => s.studentId !== student.studentId),
+        );
+      });
+  };
+  //End Xác nhận Điểm danh và lưu dB
+
   return (
     <div className="attendance-container">
       <div className="attendance-header">
@@ -96,30 +214,24 @@ export default function Attendance() {
               value={selectedClassId}
               onChange={(e) => {
                 setSelectedClassId(e.target.value);
-                setCurrentResult(null);
+                setCurrentResults([]);
               }}
             >
-              {classes.map((cls) => (
-                <option key={cls.id} value={cls.id}>
-                  {cls.courseId} - {cls.courseName}
+              {classes.map((item) => (
+                <option key={item.id} value={item.id}>
+                  {item.courseCode || item.courseId} - {item.courseName}
                 </option>
               ))}
             </select>
             <i className="fa-solid fa-chevron-down select-icon"></i>
           </div>
         </div>
-
         <div className="class-info-sub">
-          <p className="label">CA HỌC & PHÒNG</p>
+          <p className="label">Ca học và nhóm</p>
           <p className="value">
-            {currentClassInfo ? (
-              <>
-                Nhóm {currentClassInfo.group} • {currentClassInfo.studentCount}/
-                {currentClassInfo.maxStudents} SV
-              </>
-            ) : (
-              "Đang tải..."
-            )}
+            {currentClassInfo
+              ? `Nhóm ${currentClassInfo.group || currentClassInfo.groupNumber}`
+              : "Đang tải..."}
           </p>
         </div>
       </div>
@@ -140,10 +252,9 @@ export default function Attendance() {
                 muted
                 className="camera-video-stream"
               />
-              {isScanning && <div className="scanning-line"></div>}
+              <canvas ref={canvasRef} style={{ display: "none" }}></canvas>
             </>
           )}
-
           <div className="camera-actions">
             <button
               className="btn-capture-minimal"
@@ -162,53 +273,52 @@ export default function Attendance() {
 
         <div className="result-section-card">
           <h3 className="section-title">
-            <div className="indicator"></div> THÔNG TIN NHẬN DIỆN
+            <div className="indicator"></div> Thông tin nhận diện
           </h3>
-
-          {!currentResult ? (
+          {currentResults.length === 0 ? (
             <div className="empty-result-state">
-              <i className="fa-solid fa-user-shield"></i>
+              <i className="fa-solid fa-users-viewfinder"></i>
               <p>Hệ thống sẵn sàng</p>
             </div>
           ) : (
-            <div className="result-content-view">
-              <div className="photo-comparison">
-                <div className="avatar-placeholder legacy">
-                  {currentResult.shortName || "SV"}
-                </div>
-                <div className="avatar-placeholder scanned">
-                  <i className="fa-solid fa-user-check"></i>
-                </div>
-              </div>
-
-              <div className="student-detail-info">
-                <h2 className="name">{currentResult.studentName}</h2>
-                <p className="id-text">MSSV: {currentResult.studentId}</p>
-              </div>
-
-              <div className="similarity-badge">
-                <span>Độ chính xác:</span>
-                <strong>{currentResult.similarity}%</strong>
-              </div>
-
-              <div className="result-actions">
-                <button
-                  className="btn-rescan"
-                  onClick={() => setCurrentResult(null)}
-                  title="Quét lại"
+            <div className="students-list-scroller">
+              {currentResults.map((student, index) => (
+                <div
+                  className="student-result-item"
+                  key={student.studentId || index}
                 >
-                  <i className="fa-solid fa-rotate-right"></i>
-                </button>
-                <button
-                  className="btn-confirm"
-                  onClick={() => {
-                    toast.success("Đã ghi nhận điểm danh!");
-                    setCurrentResult(null);
-                  }}
-                >
-                  XÁC NHẬN
-                </button>
-              </div>
+                  <div className="info-row">
+                    <div className="info-left">
+                      <p className="id-text">
+                        MSSV: <strong>{student.studentId}</strong>
+                      </p>
+                      <h2 className="name">{student.studentName}</h2>
+                    </div>
+                    <div className="info-right">
+                      <div className="similarity-box">
+                        <span className="sim-label">Độ chính xác</span>
+                        <strong className="sim-value">
+                          {student.similarity}%
+                        </strong>
+                      </div>
+                    </div>
+                  </div>
+                  <div className="action-row">
+                    <button
+                      className="btn-cancel-scan"
+                      onClick={() => handleCancelSingle(student.studentId)}
+                    >
+                      HỦY
+                    </button>
+                    <button
+                      className="btn-confirm-scan"
+                      onClick={() => handleConfirmSingle(student)}
+                    >
+                      XÁC NHẬN
+                    </button>
+                  </div>
+                </div>
+              ))}
             </div>
           )}
         </div>

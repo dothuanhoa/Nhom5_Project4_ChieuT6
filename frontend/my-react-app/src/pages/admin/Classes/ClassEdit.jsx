@@ -8,13 +8,14 @@ const API_BASE_URL = "https://api-backend-spring-nhom5-chieut6.onrender.com";
 export default function ClassEdit() {
   const { id } = useParams();
   const navigate = useNavigate();
-  const [isLoading, setIsLoading] = useState(true);
 
+  const [isLoading, setIsLoading] = useState(true);
   const [courseCode, setCourseCode] = useState("");
   const [courseName, setCourseName] = useState("");
   const [groupNumber, setGroupNumber] = useState("");
   const [students, setStudents] = useState([]);
 
+  //Call API lớp và sinh viên theo hoc
   useEffect(() => {
     const fetchData = async () => {
       const token = localStorage.getItem("token");
@@ -32,13 +33,16 @@ export default function ClassEdit() {
           setGroupNumber(currentClass.groupNumber || "");
         }
 
+        //Lấy danh sách sinh viên theo lớp
         const resStudents = await fetch(
           `${API_BASE_URL}/classes/${id}/students`,
-          { headers: { Authorization: `Bearer ${token}` } },
+          {
+            headers: { Authorization: `Bearer ${token}` },
+          },
         );
         if (resStudents.ok) {
           const dataStudents = await resStudents.json();
-          setStudents(dataStudents.students || dataStudents || []);
+          setStudents(dataStudents);
         }
       } catch (error) {
         toast.error("Lỗi tải dữ liệu");
@@ -48,6 +52,8 @@ export default function ClassEdit() {
     };
     fetchData();
   }, [id]);
+
+  //End Call API lớp và sinh viên theo hoc
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -171,20 +177,18 @@ export default function ClassEdit() {
               >
                 <thead>
                   <tr style={{ borderBottom: "2px solid #eee" }}>
+                    <th style={{ padding: "10px" }}>STT</th>
                     <th style={{ padding: "10px" }}>Mã SV</th>
                     <th style={{ padding: "10px" }}>Họ và tên</th>
-                    <th style={{ padding: "10px" }}>Face ID</th>
                   </tr>
                 </thead>
                 <tbody>
-                  {students.map((sv) => (
+                  {students.map((sv, index) => (
                     <tr key={sv.id} style={{ borderBottom: "1px solid #eee" }}>
+                      <td style={{ padding: "10px" }}>{index + 1}</td>
                       <td style={{ padding: "10px" }}>{sv.studentCode}</td>
                       <td style={{ padding: "10px", fontWeight: "bold" }}>
                         {sv.fullName}
-                      </td>
-                      <td style={{ padding: "10px" }}>
-                        {sv.faceId ? "✅ Đã có" : "❌ Chưa"}
                       </td>
                     </tr>
                   ))}
