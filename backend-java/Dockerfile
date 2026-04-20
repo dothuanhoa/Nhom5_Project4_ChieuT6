@@ -1,20 +1,23 @@
-# Stage 1: Build file JAR bằng Gradle Wrapper (Java 21)
-FROM eclipse-temurin:21-jdk-alpine AS builder
-WORKDIR /workspace
+# ===== BUILD STAGE =====
+FROM maven:3.9.6-eclipse-temurin-21 AS build
 
-# Copy toàn bộ code vào
-COPY . .
-
-# Build ra file jar
-RUN chmod +x ./gradlew
-RUN ./gradlew :app:jar --no-daemon
-
-# Stage 2: Môi trường chạy JRE (Java 21)
-FROM eclipse-temurin:21-jre-alpine
 WORKDIR /app
 
-# Lấy file jar đã build sang
-COPY --from=builder /workspace/app/build/libs/*.jar app.jar
+# copy toàn bộ project
+COPY . .
+
+# build jar
+RUN mvn clean package -DskipTests
+
+
+# ===== RUN STAGE =====
+FROM eclipse-temurin:21-jre-alpine
+
+WORKDIR /app
+
+# copy jar đã build
+COPY --from=build /app/target/*jar-with-dependencies.jar app.jar
 
 EXPOSE 8080
+
 CMD ["java", "-jar", "app.jar"]
