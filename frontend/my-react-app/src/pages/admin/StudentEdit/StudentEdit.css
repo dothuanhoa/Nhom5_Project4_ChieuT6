@@ -1,10 +1,6 @@
 /* src/pages/Students/StudentEdit.css */
 
-.edit-container {
-  padding: 24px;
-  max-width: 600px; /* Form sửa thì gom nhỏ lại giữa màn hình nhìn sẽ sang hơn */
-  margin: 0 auto;
-}
+
 
 /* Nút Back & Tiêu đề */
 .header-with-back {

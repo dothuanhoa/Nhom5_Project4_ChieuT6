@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { toast } from "sonner";
-import AssignStudentModal from "../../../components/AssignStudentModal";
 import "./Classes.css";
 
 const API_BASE_URL = "https://api-backend-spring-nhom5-chieut6.onrender.com";
@@ -12,7 +11,7 @@ export default function Classes() {
   const [isLoading, setIsLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState("");
 
-  const [showAssignModal, setShowAssignModal] = useState(false);
+  // const [showAssignModal, setShowAssignModal] = useState(false);
   const [selectedClass, setSelectedClass] = useState(null);
 
   // call API classes
@@ -27,7 +26,10 @@ export default function Classes() {
       },
     })
       .then((res) => res.json())
-      .then((data) => getClasses(data))
+      .then((data) => {
+        const listData = data.classes || data || [];
+        setClasses(listData);
+      })
       .catch((err) => toast.error("Lỗi tải danh sách lớp học"))
       .finally(() => setIsLoading(false));
   }, []);
@@ -172,7 +174,7 @@ export default function Classes() {
       </div>
 
       {/* Modal Thêm Sinh Viên */}
-      {/* <AssignStudentModal
+      {/* <AssignStudentModal 
         showAssignModal={showAssignModal}
         setShowAssignModal={setShowAssignModal}
         selectedClass={selectedClass}

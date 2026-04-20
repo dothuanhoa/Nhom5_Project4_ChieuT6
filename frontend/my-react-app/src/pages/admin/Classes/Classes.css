@@ -1,4 +1,7 @@
-/* src/pages/Classes/Classes.css */
+
+/* =========================================================
+   PHẦN 1: DÀNH CHO TRANG DANH SÁCH LỚP HỌC 
+   ========================================================= */
 
 /* --- LOADER --- */
 .loader-container {
@@ -47,7 +50,7 @@
   letter-spacing: -0.02em;
 }
 
-.btn-primary {
+.btn-primary, .btn-add-student {
   padding: 10px 20px;
   border-radius: 12px;
   background: var(--admin-blue);
@@ -57,9 +60,11 @@
   align-items: center;
   gap: 10px;
   transition: 0.3s;
+  border: none;
+  cursor: pointer;
 }
 
-.btn-primary:hover {
+.btn-primary:hover, .btn-add-student:hover {
   background: #06317a;
   transform: translateY(-2px);
 }
@@ -81,72 +86,35 @@
   gap: 16px;
 }
 
-/* Tùy chỉnh riêng cho ô tìm kiếm trong bảng này */
-.header-search {
-  background-color: #f8fafc;
-  border-radius: 12px;
-  padding: 10px 16px;
-  display: flex;
-  align-items: center;
-  width: 320px;
-  border: 1px solid transparent;
-  transition: all 0.2s;
-}
-
-.header-search:focus-within {
-  background: #fff;
-  border-color: var(--admin-blue);
-}
-
-.header-search i {
-  color: #94a3b8;
-  font-size: 14px;
-  margin-right: 10px;
-}
-
-.header-search input {
-  background: none;
-  border: none;
-  outline: none;
-  width: 100%;
-  font-size: 14px;
-}
-
-.filter-select-box {
+.search-input-box {
   position: relative;
   width: 100%;
 }
 
-@media (min-width: 640px) {
-  .filter-select-box {
-    width: 190px;
-  }
-}
-
-.filter-select-box select {
-  width: 100%;
-  appearance: none;
-  padding: 10px 40px 10px 16px;
-  background: #f8fafc;
-  border: none;
-  border-radius: 12px;
-  font-weight: 600;
-  font-size: 14px;
-  color: var(--text-main);
-  cursor: pointer;
-  outline: none;
-}
-
-.filter-select-box i {
+.search-input-box i {
   position: absolute;
-  right: 16px;
+  left: 16px;
   top: 50%;
   transform: translateY(-50%);
   color: #94a3b8;
-  pointer-events: none;
 }
 
-/* --- TABLE STYLES --- */
+.search-input-box input {
+  width: 100%;
+  padding: 10px 16px 10px 48px;
+  background: #f8fafc;
+  border: 1px solid transparent;
+  border-radius: 12px;
+  font-size: 15px;
+  transition: all 0.2s;
+  outline: none;
+}
+
+.search-input-box input:focus {
+  background: #fff;
+  border-color: var(--admin-blue);
+}
+
 .admin-table-container {
   overflow-x: auto;
 }
@@ -178,7 +146,6 @@
   background-color: #fcfdfe;
 }
 
-/* --- TABLE CONTENT CELLS --- */
 .text-right {
   text-align: right;
 }
@@ -233,6 +200,9 @@
   align-items: center;
   justify-content: center;
   color: #94a3b8;
+  border: none;
+  background: none;
+  cursor: pointer;
 }
 
 .btn-icon:hover {
@@ -243,4 +213,72 @@
 .btn-icon.delete:hover {
   color: var(--error);
   background: #fef2f2;
+}
+
+
+/* =========================================================
+   PHẦN 2: DÀNH CHO TRANG TẠO & SỬA LỚP HỌC 
+   ========================================================= */
+
+.header-with-back {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  margin-bottom: 24px;
+}
+
+.btn-back {
+  width: 40px;
+  height: 40px;
+  background: #fff;
+  border: 1px solid var(--border-color, #e2e8f0);
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--text-main, #1e293b);
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.btn-back:hover {
+  background: var(--admin-blue, #2563eb);
+  color: #fff;
+  border-color: var(--admin-blue, #2563eb);
+  transform: translateX(-3px);
+}
+
+.dashboard-title {
+  font-size: 24px;
+  font-weight: 800;
+  color: var(--text-main, #1e293b);
+  margin: 0;
+}
+
+.two-columns-layout {
+  display: grid;
+  grid-template-columns: 1fr 1fr; 
+  gap: 24px;
+  align-items: start;
+}
+
+
+.single-column-layout {
+  max-width: 600px;
+  margin: 0 auto;
+}
+
+
+.edit-card {
+  background: #fff;
+  border-radius: 12px;
+  padding: 24px;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+  border: 1px solid var(--border-color, #e2e8f0);
+}
+
+@media (max-width: 900px) {
+  .two-columns-layout {
+    grid-template-columns: 1fr;
+  }
 }

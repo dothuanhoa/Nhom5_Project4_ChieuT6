@@ -7,7 +7,9 @@ import Login from "../pages/auth";
 
 // ===  ADMIN ===
 import Classes from "../pages/admin/Classes";
-import ClassForm from "../pages/admin/ClassForm";
+import ClassCreate from "../pages/admin/Classes/ClassCreate"; 
+import ClassEdit from "../pages/admin/Classes/ClassEdit";
+// import ClassForm from "../pages/admin/ClassForm";
 import RegisterFace from "../pages/admin/RegisterFace";
 import Students from "../pages/admin/Students";
 import AdminAttendanceHistory from "../pages/admin/AttendanceHistory";
@@ -46,16 +48,16 @@ export const routes = [
             element: <Classes />,
           },
           {
-            path: "students",
-            element: <Students />,
-          },
-          {
             path: "classes/add",
-            element: <ClassForm />,
+            element: <ClassCreate />, 
           },
           {
             path: "classes/edit/:id",
-            element: <ClassForm />,
+            element: <ClassEdit />, 
+          },
+          {
+            path: "students",
+            element: <Students />,
           },
           {
             path: "students/edit/:id",
