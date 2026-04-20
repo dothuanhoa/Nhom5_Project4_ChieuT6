@@ -6,7 +6,7 @@ spring:
     gateway:
       routes:
         - id: java-service
-          uri:  https://nhom5-project4-chieut6-1.onrender.com
+          uri: https://nhom5-project4-chieut6-1.onrender.com
           predicates:
             - Path=/api/java/**
           filters:
