@@ -14,6 +14,9 @@ import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+
 
 
 @RestController
@@ -32,6 +35,12 @@ public class CourseSectionController {
     public ResponseEntity<List<CourseSection>> getCourses() {
         return ResponseEntity.ok(courseSectionRepository.findAll());
     }
+
+    @PostMapping
+    public ResponseEntity<CourseSection> addCourse(@RequestBody CourseSection courseSection) {
+        return ResponseEntity.ok(courseSectionRepository.save(courseSection));
+    }
+    
     
     @GetMapping("/{id}/students")
     public ResponseEntity<List<Student>> getStudentInCourse(@PathVariable int id) {
@@ -40,7 +49,6 @@ public class CourseSectionController {
             return ResponseEntity.ok(students);
         }
         return ResponseEntity.notFound().build();
-        
     }
     
     

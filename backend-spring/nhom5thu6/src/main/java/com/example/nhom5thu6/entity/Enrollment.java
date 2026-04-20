@@ -18,4 +18,11 @@ public class Enrollment {
     @ManyToOne
     @JoinColumn(name = "course_section_id", nullable = false)
     private CourseSection courseSection;
+
+    public Enrollment(Student student, CourseSection courseSection) {
+        this.student = student;
+        this.courseSection = courseSection;
+    }
+
+    
 }
