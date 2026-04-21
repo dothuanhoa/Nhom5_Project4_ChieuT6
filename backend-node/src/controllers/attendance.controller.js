@@ -1,109 +1,111 @@
-const axios = require('axios');
-const FormData = require('form-data');
-const { pool } = require('../config/database');
+const identityService = require("../services/identity.service");
+const attendanceService = require("../services/attendance.service");
+const historyService = require("../services/history.service");
+const { pool } = require("../config/database");
 
-// 1. API ĐIỂM DANH (Đã thêm logic chống trùng)
-const checkIn = async (req, res) => {
-    try {
-        const { course_code, group_number } = req.body;
-        const file = req.file;
+const attendanceController = {
+	checkIn: async (req, res) => {
+		try {
+			const { classId, similarityScore, status, imageProofUrl } = req.body;
 
-        if (!file || !course_code || !group_number) {
-            return res.status(400).json({ success: false, message: 'Thiếu thông tin hoặc ảnh!' });
-        }
+			// //  Dịch thông tin từ Spring Boot
+			// if (!classId) {
+      //   return res.status(400).json({ success: false, message: 'Thiếu classId' });
+      // }
 
-        const courseRes = await pool.query(
-            'SELECT id FROM course_sections WHERE course_code = $1 AND group_number = $2',
-            [course_code, group_number]
-        );
-        if (courseRes.rows.length === 0) return res.status(404).json({ message: 'Không tìm thấy lớp!' });
-        const courseId = courseRes.rows[0].id;
+      // const studentCode = await identityService.verifyFromSpringBoot(faceData);
 
-        const formData = new FormData();
-        formData.append('image', file.buffer, file.originalname);
-        
-        let springRes;
-        try {
-            springRes = await axios.post(`${process.env.SPRING_API_URL}/verify-face`, formData, { headers: { ...formData.getHeaders() } });
-        } catch (error) {
-            return res.status(502).json({ message: 'Lỗi kết nối AI!' });
-        }
+      // const studentRes = await pool.query('SELECT id FROM students WHERE student_code = $1', [studentCode]);
+      // if (studentRes.rows.length === 0) {
+      //   return res.status(404).json({ success: false, message: 'Sinh viên không tồn tại trong hệ thống' });
+      // }
 
-        const { student_code, similarity_score } = springRes.data;
+			//////////////////// Chống trùng, check lớp
+			const result = await attendanceService.checkLogicAndSave(
+				studentRes.rows[0].id,
+				classId,
+				similarityScore || 100,
+				status,
+				imageProofUrl,
+			);
 
-        if (student_code) {
-            const studentRes = await pool.query('SELECT id, full_name FROM students WHERE student_code = $1', [student_code]);
-            if (studentRes.rows.length === 0) return res.status(404).json({ message: 'SV không tồn tại' });
-            const student = studentRes.rows[0];
+			res.status(201).json({
+				success: true,
+				message: result.isVerified
+					? "Điểm danh thành công!"
+					: "Chờ giảng viên duyệt",
+				data: result.record,
+			});
+		} catch (err) {
+			res.status(err.status || 500).json({
+				success: false,
+				message: err.message || "Lỗi server",
+			});
+		}
+	},
 
-            const enrollRes = await pool.query('SELECT id FROM enrollments WHERE student_id = $1 AND course_section_id = $2', [student.id, courseId]);
-            if (enrollRes.rows.length === 0) return res.status(403).json({ message: 'SV không thuộc lớp này' });
+	////////////////////////truy vấn lich sử điểm danh classid,date
+	getHistory: async (req, res) => {
+		try {
+			const { classId, date } = req.query;
 
-            // THÊM MỚI: LOGIC CHỐNG TRÙNG LẶP TRONG NGÀY
-            const checkDup = await pool.query(
-                'SELECT id FROM attendance_logs WHERE student_id = $1 AND course_section_id = $2 AND attendance_date = CURRENT_DATE',
-                [student.id, courseId]
-            );
-            if (checkDup.rows.length > 0) {
-                return res.status(400).json({ success: false, message: 'Sinh viên đã điểm danh trong hôm nay rồi!' });
-            }
+			if (!classId) {
+				return res
+					.status(400)
+					.json({ success: false, message: "Bắt buộc cung cấp classId" });
+			}
 
-            const is_verified = similarity_score >= 60;
-            await pool.query(
-                `INSERT INTO attendance_logs (student_id, course_section_id, attendance_date, check_in_time, similarity_score, is_verified, status) 
-                 VALUES ($1, $2, CURRENT_DATE, NOW(), $3, $4, $5)`,
-                [student.id, courseId, similarity_score, is_verified, is_verified ? 'present' : 'late']
-            );
+			if (date && !/^\d{4}-\d{2}-\d{2}$/.test(date)) {
+				return res.status(400).json({
+					success: false,
+					message: "Định dạng ngày không hợp lệ (YYYY-MM-DD)",
+				});
+			}
 
-            return res.json({ success: true, student_name: student.full_name, similarity: similarity_score, is_verified });
-        }
-        res.status(400).json({ message: 'Không nhận diện được mặt!' });
-    } catch (err) {
-        res.status(500).json({ error: err.message });
-    }
+			const data = await historyService.fetchLogs(classId, date);
+
+			if (data.length === 0) {
+				return res.status(200).json({
+					success: true,
+					message: "Không có dữ liệu",
+					count: 0,
+					data: [],
+				});
+			}
+
+			res.status(200).json({ success: true, count: data.length, data });
+		} catch (err) {
+			res
+				.status(500)
+				.json({ success: false, message: "Lỗi truy xuất lịch sử" });
+		}
+	},
+	///////////cập nhật thủ công(teacher)
+	updateManualStatus: async (req, res) => {
+		try {
+			const { logId } = req.body;
+
+			if (!logId) {
+				return res.status(400).json({
+					success: false,
+					message: "Lỗi: Bắt buộc phải cung cấp logId (Mã bản ghi điểm danh).",
+				});
+			}
+
+			const data = await attendanceService.updateManual(logId);
+
+			res.status(200).json({
+				success: true,
+				message: "Đã cập nhật trạng thái duyệt thủ công thành công!",
+				data: data,
+			});
+		} catch (err) {
+			res.status(err.status || 500).json({
+				success: false,
+				message: err.message,
+			});
+		}
+	},
 };
 
-// 2. API TRUY XUẤT LỊCH SỬ ĐIỂM DANH
-const getHistory = async (req, res) => {
-    try {
-        const { course_code, group_number, attendance_date } = req.query;
-        if (!course_code || !group_number || !attendance_date) {
-            return res.status(400).json({ message: 'Thiếu tham số tìm kiếm!' });
-        }
-
-        const query = `
-            SELECT al.id as log_id, s.student_code, s.full_name, al.attendance_date, al.check_in_time, al.similarity_score, al.is_verified, al.status
-            FROM attendance_logs al
-            JOIN students s ON al.student_id = s.id
-            JOIN course_sections cs ON al.course_section_id = cs.id
-            WHERE cs.course_code = $1 AND cs.group_number = $2 AND al.attendance_date = $3
-            ORDER BY al.check_in_time DESC
-        `;
-        const result = await pool.query(query, [course_code, group_number, attendance_date]);
-        res.json({ success: true, data: result.rows });
-    } catch (err) {
-        res.status(500).json({ error: err.message });
-    }
-};
-
-// 3. API CẬP NHẬT TRẠNG THÁI THỦ CÔNG (Dành cho Giảng viên)
-const updateManualStatus = async (req, res) => {
-    try {
-        const { log_id } = req.body;
-        if (!log_id) return res.status(400).json({ message: 'Thiếu ID bản ghi!' });
-
-        const result = await pool.query(
-            `UPDATE attendance_logs 
-             SET is_verified = true, status = 'present' 
-             WHERE id = $1 RETURNING *`,
-            [log_id]
-        );
-
-        if (result.rows.length === 0) return res.status(404).json({ message: 'Không tìm thấy bản ghi!' });
-        res.json({ success: true, message: 'Cập nhật thành công!', data: result.rows[0] });
-    } catch (err) {
-        res.status(500).json({ error: err.message });
-    }
-};
-
-module.exports = { checkIn, getHistory, updateManualStatus };
+module.exports = attendanceController;
