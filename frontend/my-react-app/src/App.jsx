@@ -1,9 +1,10 @@
 import "./App.css";
 import AllRoute from "./components/AllRoute";
-import dayjs from "dayjs";
+import { Toaster } from 'sonner';
 function App() {
   return (
     <>
+      <Toaster position="top-right" richColors duration={3000} />
       <AllRoute />
     </>
   );
