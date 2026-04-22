@@ -11,7 +11,6 @@ import com.example.nhom5thu6.user.dto.request.LoginRequest;
 import com.example.nhom5thu6.user.dto.request.RegisterRequest;
 import com.example.nhom5thu6.user.dto.response.LoginResponse;
 import com.example.nhom5thu6.user.service.AuthService;
-import com.example.nhom5thu6.user.service.UserService;
 import org.springframework.web.bind.annotation.PostMapping;
 
 
