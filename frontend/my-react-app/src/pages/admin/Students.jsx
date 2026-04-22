@@ -1,20 +1,22 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { toast } from "sonner";
-import "./Classes.css";
+// import { studentService } from "../../../services/api_Admin";
+import "../../assets/styles/AdminStyle.css";
 
 const API_BASE_URL = "https://api-backend-spring-nhom5-chieut6.onrender.com";
 
-export default function Classes() {
+export default function Students() {
   const navigate = useNavigate();
-  const [classes, setClasses] = useState([]);
-  const [searchTerm, setSearchTerm] = useState("");
-  const [selectedClass, setSelectedClass] = useState(null);
 
-  // call API classes
+  const [students, setStudents] = useState([]);
+  const [searchTerm, setSearchTerm] = useState("");
+
+  // call API
   useEffect(() => {
     const token = localStorage.getItem("token");
-    fetch(`${API_BASE_URL}/classes`, {
+
+    fetch(`${API_BASE_URL}/students`, {
       method: "GET",
       headers: {
         "Content-Type": "application/json",
@@ -22,72 +24,75 @@ export default function Classes() {
       },
     })
       .then((res) => res.json())
-      .then((data) => {
-        const listData = data.classes || data || [];
-        setClasses(listData);
-      })
-      .catch((err) => toast.error("Lỗi tải danh sách lớp học"));
+      .then((data) => setStudents(data))
+      .catch((err) => toast.error("Lỗi tải dữ liệu sinh viên"));
   }, []);
-  // End call API classes
+  //End call API
 
-  //Tìm kiếm
-  let danhSachDaLoc = classes.filter((item) => {
+  // Tìm kiếm
+  let danhSachDaLoc = students.filter((sv) => {
     const search = searchTerm.toLowerCase();
     return (
-      item.courseCode?.toLowerCase().includes(search) ||
-      item.courseName?.toLowerCase().includes(search)
+      sv.fullName?.toLowerCase().includes(search) ||
+      sv.studentCode?.toLowerCase().includes(search)
     );
   });
-  //End Tìm kiếm
+  // End Tìm kiếm
 
-  //Call API delete
-  const handleDelete = (id) => {
-    if (!window.confirm("Bạn có chắc chắn muốn xóa lớp học này?")) return;
+  // call API delete
+  const handleDelete = async (studentId) => {
+    if (!window.confirm("Bạn có chắc chắn muốn xóa sinh viên này?")) return;
+
     const token = localStorage.getItem("token");
-    fetch(`${API_BASE_URL}/classes/${id}`, {
+
+    fetch(`${API_BASE_URL}/students/${studentId}`, {
       method: "DELETE",
       headers: {
         Authorization: `Bearer ${token}`,
       },
     })
       .then((res) => {
-        if (!res.ok) toast.error("Xóa lớp học thất bại, vui lý thử lại!");
-        setClasses((prev) => prev.filter((item) => item.id !== id));
-        toast.success("Đã xóa lớp học");
+        setStudents((prev) => prev.filter((sv) => sv.id !== studentId));
+        toast.success("Đã xóa sinh viên thành công");
       })
       .catch((err) => toast.error("Xóa thất bại, vui lòng thử lại"));
   };
-  //End Call API delete
+  //End call API delete
 
   return (
-    <div className="classes-page">
+    <div className="students-page">
       <div className="page-header">
-        <h2 className="title-page">Quản lý lớp học</h2>
-        <button className="btn-primary" onClick={() => navigate("add")}>
-          <i className="fa-solid fa-plus"></i> Tạo lớp học mới
+        <h2 className="title-page">Quản lý sinh viên</h2>
+        <button
+          className="btn-primary"
+          onClick={() => navigate("/admin/register-face")}
+        >
+          <i className="fa-solid fa-plus"></i>
+          <span>Thêm sinh viên mới</span>
         </button>
       </div>
 
       <div className="table-wrapper">
         <div className="search-filter-section">
-          <div className="search-grid" style={{ width: "100%" }}>
+          <div className="search-grid">
             <div className="search-input-box">
               <input
                 type="text"
-                placeholder="Tìm mã môn, tên môn..."
+                placeholder="Tìm theo mã SV hoặc tên..."
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
               />
             </div>
           </div>
         </div>
+
         <div className="admin-table-container">
           <table className="admin-table">
             <thead>
               <tr>
-                <th>Mã môn</th>
-                <th>Tên môn học</th>
-                <th>Nhóm</th>
+                <th>Mã SV</th>
+                <th>Họ và tên</th>
+                <th>Face ID</th>
                 <th>Thao tác</th>
               </tr>
             </thead>
@@ -95,36 +100,45 @@ export default function Classes() {
               {danhSachDaLoc.map((item) => (
                 <tr key={item.id}>
                   <td>
-                    <span className="id-badge">{item.courseCode}</span>
+                    <span className="id-badge">{item.studentCode}</span>
                   </td>
+
                   <td>
-                    <span className="bold-text">{item.courseName}</span>
+                    <div className="student-info-cell">
+                      <div className="student-avatar-circle">
+                        <i className="fa-solid fa-user"></i>
+                      </div>
+                      <div>
+                        <div className="student-name">{item.fullName}</div>
+                      </div>
+                    </div>
                   </td>
+
                   <td>
-                    <span className="stat-badge neutral">
-                      {item.groupNumber}
-                    </span>
+                    {item.faceId ? (
+                      <span className="status-label success">
+                        <i className="fa-solid fa-circle-check"></i> Đã có
+                      </span>
+                    ) : (
+                      <span className="status-label warning">
+                        <i className="fa-solid fa-circle-minus"></i> Chưa có
+                      </span>
+                    )}
                   </td>
+
                   <td>
                     <div className="action-btns">
                       <button
                         className="btn-icon"
-                        title="Thêm SV"
-                        onClick={() => navigate(`assign/${item.id}`)}
-                      >
-                        <i className="fa-solid fa-user-plus"></i>
-                      </button>
-                      <button
-                        className="btn-icon"
-                        title="Sửa"
                         onClick={() => navigate(`edit/${item.id}`)}
+                        title="Sửa"
                       >
                         <i className="fa-solid fa-pen-to-square"></i>
                       </button>
                       <button
                         className="btn-icon delete"
-                        title="Xóa"
                         onClick={() => handleDelete(item.id)}
+                        title="Xóa"
                       >
                         <i className="fa-solid fa-trash-can"></i>
                       </button>
@@ -143,7 +157,15 @@ export default function Classes() {
                       color: "#94a3b8",
                     }}
                   >
-                    <p>Không tìm thấy lớp học nào.</p>
+                    <i
+                      className="fa-solid fa-folder-open"
+                      style={{
+                        fontSize: "24px",
+                        marginBottom: "8px",
+                        opacity: 0.5,
+                      }}
+                    ></i>
+                    <p>Không tìm thấy sinh viên nào.</p>
                   </td>
                 </tr>
               )}

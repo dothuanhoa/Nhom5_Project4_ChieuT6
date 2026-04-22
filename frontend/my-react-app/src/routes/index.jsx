@@ -1,20 +1,20 @@
-import AdminLayout from "../layout/AdminLayout";
+import AdminLayout from "../layout/AdminLayout.jsx";
 import TeacherLayout from "../layout/TeacherLayout";
 import PrivateRoutes from "../components/PrivateRoutes";
 import { Navigate } from "react-router-dom";
 
 import Login from "../pages/auth";
 // ===  ADMIN ===
-import Classes from "../pages/admin/Classes";
-import ClassCreate from "../pages/admin/Classes/ClassCreate";
-import ClassEdit from "../pages/admin/Classes/ClassEdit";
-import ClassAssign from "../pages/admin/Classes/ClassAssign";
-import RegisterFace from "../pages/admin/RegisterFace";
-import Students from "../pages/admin/Students";
-import AdminAttendanceHistory from "../pages/admin/AttendanceHistory";
-import StudentEdit from "../pages/admin/StudentEdit";
-import UserManagement from "../pages/admin/UserManagement";
-import UserRegister from "../pages/admin/UserManagement/UserRegister";
+import ClassEdit from "../pages/admin/ClassEdit.jsx";
+import Classes from "../pages/admin/Classes.jsx";
+import ClassCreate from "../pages/admin/ClassCreate.jsx";
+import ClassAssign from "../pages/admin/ClassAssign.jsx";
+import RegisterFace from "../pages/admin/RegisterFace.jsx";
+import Students from "../pages/admin/Students.jsx";
+import AdminAttendanceHistory from "../pages/admin/AttendanceHistory.jsx";
+import StudentEdit from "../pages/admin/StudentEdit.jsx";
+import UserManagement from "../pages/admin/UserManagement.jsx";
+import UserRegister from "../pages/admin/UserRegister.jsx";
 // === GIÁO VIÊN ===
 import Attendance from "../pages/teacher/Attendance";
 import TeacherAttendanceHistory from "../pages/teacher/AttendanceHistory";

@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import "./AttendanceHistory.css";
+import "../../assets/styles/AdminStyle.css";
 
 const API_BASE_URL = "https://api-backend-spring-nhom5-chieut6.onrender.com";
 
