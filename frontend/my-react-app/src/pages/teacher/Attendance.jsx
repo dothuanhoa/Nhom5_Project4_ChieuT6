@@ -3,6 +3,7 @@ import { toast } from "sonner";
 import "../../assets/styles/TeacherStyle.css";
 
 const API_BASE_URL = "https://api-backend-spring-nhom5-chieut6.onrender.com";
+const NODE_API_URL = "https://api-backend-node-nhom5-chieut6.onrender.com";
 
 export default function Attendance() {
   const [classes, setClasses] = useState([]);
@@ -161,6 +162,7 @@ export default function Attendance() {
               const isEnrolled = enrolledStudentIds.includes(realStudent.id);
 
               mappedResults.push({
+                dbId: realStudent.id,
                 studentName: realStudent.fullName,
                 studentId: realStudent.studentCode,
                 similarity: Math.round(aiFace.similarity),
@@ -185,19 +187,34 @@ export default function Attendance() {
     setCurrentResults((prev) => prev.filter((s) => s.studentId !== studentId));
   };
 
+  //Xử lý Call API lưu Điểm danh
   const handleConfirmSingle = (student) => {
     const token = localStorage.getItem("token");
-    fetch(`${API_BASE_URL}/attendances`, {
+
+    const now = new Date();
+    const year = now.getFullYear();
+    const month = String(now.getMonth() + 1).padStart(2, "0");
+    const day = String(now.getDate()).padStart(2, "0");
+    const hours = String(now.getHours()).padStart(2, "0");
+    const minutes = String(now.getMinutes()).padStart(2, "0");
+    const seconds = String(now.getSeconds()).padStart(2, "0");
+    const checkInTime = `${year}-${month}-${day} ${hours}:${minutes}:${seconds}`;
+
+    const payload = {
+      studentId: student.dbId,
+      classId: selectedClassId,
+      similarityScore: student.similarity,
+      status: "Present",
+      checkInTime: checkInTime,
+    };
+
+    fetch(`${NODE_API_URL}/api/attendance/update-status`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
         Authorization: `Bearer ${token}`,
       },
-      body: JSON.stringify({
-        studentCode: student.studentId,
-        classId: selectedClassId,
-        status: "Present",
-      }),
+      body: JSON.stringify(payload),
     })
       .then((res) => {
         if (!res.ok) throw new Error("Lỗi");
@@ -207,11 +224,20 @@ export default function Attendance() {
         toast.success(`Đã xác nhận UI: ${student.studentName} (Chờ API)`),
       )
       .finally(() => {
-        setCurrentResults((prev) =>
-          prev.filter((s) => s.studentId !== student.studentId),
-        );
+        setCurrentResults((prev) => {
+          const remainingStudents = prev.filter(
+            (s) => s.studentId !== student.studentId,
+          );
+
+          if (remainingStudents.length === 0) {
+            handleRetake();
+          }
+
+          return remainingStudents;
+        });
       });
   };
+  //End Xử lý Call API lưu Điểm danh
 
   return (
     <div className="attendance-container">

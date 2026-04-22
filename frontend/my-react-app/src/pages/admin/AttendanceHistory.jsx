@@ -1,7 +1,9 @@
 import React, { useState, useEffect } from "react";
+import dayjs from "dayjs";
 import "../../assets/styles/AdminStyle.css";
 
 const API_BASE_URL = "https://api-backend-spring-nhom5-chieut6.onrender.com";
+const NODE_API_URL = "https://api-backend-node-nhom5-chieut6.onrender.com";
 
 export default function AttendanceHistory() {
   const [classes, setClasses] = useState([]);
@@ -9,7 +11,7 @@ export default function AttendanceHistory() {
 
   const [records, setRecords] = useState([]);
   const [searchTerm, setSearchTerm] = useState("");
-  const [selectedClass, setSelectedClass] = useState("all");
+  // const [selectedClass, setSelectedClass] = useState("all");
 
   //Call API classes
   useEffect(() => {
@@ -27,11 +29,38 @@ export default function AttendanceHistory() {
   }, []);
   //Call API classes
 
+  // Hàm chuyển đổi chuỗi thời gian
+  const formatDateTime = (timeString) => {
+    return dayjs(timeString).format("HH:mm:ss - DD/MM/YYYY");
+  };
+
+  ///Call API lấy Lịch sử điểm danh
+  useEffect(() => {
+    if (!selectedClassId) return;
+    const token = localStorage.getItem("token");
+    fetch(`${NODE_API_URL}/api/attendance/history?classId=${selectedClassId}`, {
+      method: "GET",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${token}`,
+      },
+    })
+      .then((res) => res.json())
+      .then((data) => {
+        setRecords(data.data);
+      })
+      .catch(() => {
+        toast.error("Không thể lấy lịch sử điểm danh");
+        setRecords([]);
+      });
+  }, [selectedClassId]);
+  ///End Call API lấy Lịch sử điểm danh
+
   //Tìm kiếm
-  const danhSachDaLoc = records.filter((r) => {
+  const danhSachDaLoc = records.filter((item) => {
     const khopTimKiem =
-      r.studentName.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      r.studentId.toLowerCase().includes(searchTerm.toLowerCase());
+      item.full_name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      item.student_code.toLowerCase().includes(searchTerm.toLowerCase());
     return khopTimKiem;
   });
   //End Tìm kiếm
@@ -48,8 +77,8 @@ export default function AttendanceHistory() {
             <label className="form-label">Lớp học</label>
             <select
               className="input-field"
-              value={selectedClass}
-              onChange={(e) => setSelectedClass(e.target.value)}
+              value={selectedClassId}
+              onChange={(e) => setSelectedClassId(e.target.value)}
             >
               {classes.map((item) => (
                 <option key={item.id} value={item.id}>
@@ -79,21 +108,23 @@ export default function AttendanceHistory() {
               <tr>
                 <th>Mã Sinh Viên</th>
                 <th>Sinh viên</th>
-                <th>Trạng thái</th>
+                <th>Thời gian điểm danh</th>
+                <th>Độ chính xác</th>
               </tr>
             </thead>
             <tbody>
               {danhSachDaLoc.map((record) => (
                 <tr key={record.id}>
                   <td>
-                    <span className="id-badge-text">{record.studentId}</span>
+                    <span>{record.student_code}</span>
                   </td>
                   <td>
                     <span className="student-name-bold">
-                      {record.studentName}
+                      {record.full_name}
                     </span>
                   </td>
-                  <td>{record.status}</td>
+                  <td>{formatDateTime(record.check_in_time)}</td>
+                  <td>{record.similarity_score} %</td>
                 </tr>
               ))}
             </tbody>

@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { Toaster, toast } from "sonner";
 
-import "./Auth.css";
+import "../assets/styles/Auth.css";
 
 const API_BASE_URL = "https://api-backend-spring-nhom5-chieut6.onrender.com";
 
