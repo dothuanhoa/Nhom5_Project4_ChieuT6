@@ -1,24 +1,34 @@
-// // Namespace: VoVanSy_DH52201379
-// const axios = require('axios');
+const axios = require('axios');
 
-// const identityService = {
-//   verifyFromSpringBoot: async (faceData) => {
-//     try {
-//       // Gọi qua API Gateway của bạn
-//       const gatewayUrl = 'https://nhom5-project4-chieut6-jy3r.onrender.com/api/spring/faces/translate';
-      
-//       const response = await axios.post(gatewayUrl, { faceData });
-      
-//       // Giả sử Spring Boot trả về object có trường studentCode
-//       return response.data.studentCode; 
-      
-//     } catch (error) {
-//       console.error('Lỗi khi gọi Gateway/Spring Boot:', error.message);
-      
-//       // Tạm thời fallback về mã hardcode để dự án không bị sập khi Spring Boot đang lỗi
-//       return "DH52200988"; 
-//     }
-//   }
-// };
+const identityService = {
+  translateFaces: async (recognitions) => {
+    try {
+      const springApiUrl = 'https://api-backend-spring-nhom5-chieut6.onrender.com/students';
+      const response = await axios.get(springApiUrl);
+      const allStudents = response.data;
 
-// module.exports = identityService;
+      const translatedList = [];
+      const unrecognizedFaces = []; 
+
+      for (const face of recognitions) {
+        const matchedStudent = allStudents.find(s => s.faceId === face.faceId);
+        
+        if (matchedStudent) {
+          translatedList.push({
+            studentCode: matchedStudent.studentCode,
+            similarityScore: face.similarityScore
+          });
+        } else {
+          unrecognizedFaces.push(face.faceId);
+        }
+      }
+
+      return { translatedList, unrecognizedFaces };
+
+    } catch (error) {
+      throw { status: 502, message: 'Lỗi Gateway: Không thể kết nối với Spring Boot API để dịch mã khuôn mặt.' };
+    }
+  }
+};
+
+module.exports = identityService;
