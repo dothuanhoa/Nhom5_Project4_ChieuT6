@@ -143,7 +143,7 @@ const attendanceController = {
 		} catch (err) {
 			res
 				.status(500)
-				.json({ success: false, message: "Lỗi truy xuất lịch sử" });
+				.json({ success: false, message: "Lỗi DB: " + err.message });
 		}
 	},
 
