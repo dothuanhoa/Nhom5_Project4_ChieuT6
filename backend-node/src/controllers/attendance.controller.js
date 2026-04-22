@@ -150,10 +150,10 @@ const attendanceController = {
 	///////////////////update thủ công
 	updateManualStatus: async (req, res) => {
 		try {
-			const { studentCode, classId, similarityScore, status, checkInTime } =
+			const { studentId, classId, similarityScore, status, checkInTime } =
 				req.body;
 
-			if (!studentCode || !classId) {
+			if (!studentId || !classId) {
 				return res.status(400).json({
 					success: false,
 					message: "Lỗi:  Thiếu dữ liệu bắt buộc",
@@ -175,18 +175,18 @@ const attendanceController = {
 				});
 			}
 			const studentRes = await pool.query(
-				"SELECT id FROM students WHERE student_code = $1",
-				[studentCode],
+				"SELECT id FROM students WHERE id = $1",
+				[studentId],
 			);
 
 			if (studentRes.rows.length === 0) {
 				return res.status(404).json({
 					success: false,
-					message: `Không tìm thấy sinh viên có mã ${studentCode} trong hệ thống.`,
+					message: `Không tìm thấy sinh viên có id ${studentId} trong hệ thống.`,
 				});
 			}
 
-			const studentId = studentRes.rows[0].id;
+			// const studentId = studentRes.rows[0].id;
 
 			const result = await attendanceService.checkLogicAndSave(
 				studentId,

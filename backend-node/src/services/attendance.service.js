@@ -1,5 +1,5 @@
 const { pool } = require('../config/database');
-const { checkIn } = require('../controllers/attendance.controller');
+// const { checkIn } = require('../controllers/attendance.controller');
 
 const attendanceService = {
 checkLogicAndSave: async (studentId, classId, score, status, imageUrl, checkInTime = null) => {
