@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { toast } from "sonner";
-import "./AttendanceHistory.css";
+import "../../assets/styles/TeacherStyle.css";
 
 const API_BASE_URL = "https://api-backend-spring-nhom5-chieut6.onrender.com";
 

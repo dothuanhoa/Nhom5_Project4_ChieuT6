@@ -1,5 +1,5 @@
 import AdminLayout from "../layout/AdminLayout.jsx";
-import TeacherLayout from "../layout/TeacherLayout";
+import TeacherLayout from "../layout/TeacherLayout.jsx";
 import PrivateRoutes from "../components/PrivateRoutes";
 import { Navigate } from "react-router-dom";
 
@@ -16,8 +16,8 @@ import StudentEdit from "../pages/admin/StudentEdit.jsx";
 import UserManagement from "../pages/admin/UserManagement.jsx";
 import UserRegister from "../pages/admin/UserRegister.jsx";
 // === GIÁO VIÊN ===
-import Attendance from "../pages/teacher/Attendance";
-import TeacherAttendanceHistory from "../pages/teacher/AttendanceHistory";
+import Attendance from "../pages/teacher/Attendance.jsx";
+import TeacherAttendanceHistory from "../pages/teacher/AttendanceHistory.jsx";
 
 export const routes = [
   {
