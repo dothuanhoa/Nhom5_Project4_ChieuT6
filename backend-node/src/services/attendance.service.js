@@ -1,7 +1,8 @@
 const { pool } = require('../config/database');
+const { checkIn } = require('../controllers/attendance.controller');
 
 const attendanceService = {
-  checkLogicAndSave: async (studentId, classId, score, status, imageUrl) => {
+checkLogicAndSave: async (studentId, classId, score, status, imageUrl, checkInTime = null) => {
     try {
       const enrollQuery = 'SELECT id FROM enrollments WHERE student_id = $1 AND course_section_id = $2';
       const enrollRes = await pool.query(enrollQuery, [studentId, classId]);
@@ -10,16 +11,23 @@ const attendanceService = {
         throw { status: 403, message: 'Lỗi: Sinh viên không có tên trong danh sách đăng ký của lớp học này!' };
       }
 
+      let finalDate = new Date().toISOString().split('T')[0];
+      let finalTime = new Date().toISOString();
+      if (checkInTime) {
+         finalDate = checkInTime.split(' ')[0].split('T')[0]; 
+         finalTime = checkInTime; 
+      }
+
       const dupQuery = `
         SELECT id FROM attendance_logs 
         WHERE student_id = $1 
           AND course_section_id = $2 
-          AND attendance_date = CURRENT_DATE
+          AND attendance_date = $3
       `;
-      const dupRes = await pool.query(dupQuery, [studentId, classId]);
+      const dupRes = await pool.query(dupQuery, [studentId, classId, finalDate]);
       
       if (dupRes.rows.length > 0) {
-        throw { status: 409, message: 'Lỗi: Sinh viên này đã được điểm danh thành công trong ngày hôm nay!' };
+        throw { status: 409, message: `Lỗi: Sinh viên này đã được điểm danh thành công trong ngày ${finalDate}!` };
       }
 
       const isVerified = parseFloat(score) >= 60;
@@ -28,10 +36,11 @@ const attendanceService = {
         INSERT INTO attendance_logs 
           (student_id, course_section_id, attendance_date, check_in_time, similarity_score, is_verified, status, image_proof_url)
         VALUES 
-          ($1, $2, CURRENT_DATE, CURRENT_TIMESTAMP, $3, $4, $5, $6) 
+          ($1, $2, $3, $4, $5, $6, $7, $8) 
         RETURNING *;
       `;
-      const insertValues = [studentId, classId, score, isVerified, status || 'Present', imageUrl];
+      const insertValues = [studentId, classId, finalDate, finalTime, score, isVerified, status || 'Present', imageUrl];
+      // ----------------------------------------------
       
       const result = await pool.query(insertQuery, insertValues);
 

@@ -71,7 +71,7 @@ const attendanceController = {
 						});
 						continue;
 					}
-					////////////////////check đki chống trùng
+
 					const record = await attendanceService.checkLogicAndSave(
 						studentRes.rows[0].id,
 						classId,
@@ -150,21 +150,57 @@ const attendanceController = {
 	///////////////////update thủ công
 	updateManualStatus: async (req, res) => {
 		try {
-			const { logId } = req.body;
+			const { studentCode, classId, similarityScore, status, checkInTime } =
+				req.body;
 
-			if (!logId) {
+			if (!studentCode || !classId) {
 				return res.status(400).json({
 					success: false,
-					message: "Lỗi: Bắt buộc phải cung cấp logId (Mã bản ghi điểm danh).",
+					message: "Lỗi:  Thiếu dữ liệu bắt buộc",
+				});
+			}
+			if (checkInTime && isNaN(Date.parse(checkInTime))) {
+				return res.status(400).json({
+					success: false,
+					message: "Lỗi: Định dạng checkInTime không hợp lệ (YYYY-MM-DD).",
 				});
 			}
 
-			const data = await attendanceService.updateManual(logId);
+			const parsedScore =
+				similarityScore !== undefined ? parseFloat(similarityScore) : 100;
+			if (isNaN(parsedScore) || parsedScore < 0 || parsedScore > 100) {
+				return res.status(400).json({
+					success: false,
+					message: "Lỗi: similarityScore phải là một con số từ 0 đến 100.",
+				});
+			}
+			const studentRes = await pool.query(
+				"SELECT id FROM students WHERE student_code = $1",
+				[studentCode],
+			);
+
+			if (studentRes.rows.length === 0) {
+				return res.status(404).json({
+					success: false,
+					message: `Không tìm thấy sinh viên có mã ${studentCode} trong hệ thống.`,
+				});
+			}
+
+			const studentId = studentRes.rows[0].id;
+
+			const result = await attendanceService.checkLogicAndSave(
+				studentId,
+				classId,
+				parsedScore,
+				status || "Present",
+				null,
+				checkInTime,
+			);
 
 			res.status(200).json({
 				success: true,
-				message: "Đã cập nhật trạng thái duyệt thủ công thành công!",
-				data: data,
+				message: "Đã xác nhận điểm danh thành công!",
+				data: result.record,
 			});
 		} catch (err) {
 			res
