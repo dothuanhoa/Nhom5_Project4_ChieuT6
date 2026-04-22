@@ -39,7 +39,6 @@ export default function AdminLayout() {
 
   ];
 
-  // 2. XỬ LÝ ĐĂNG XUẤT (Xóa thẳng trong bộ nhớ rồi đá về trang login)
   const handleLogout = () => {
     localStorage.removeItem("token");
     localStorage.removeItem("user");
@@ -48,12 +47,11 @@ export default function AdminLayout() {
 
   return (
     <div className="admin-layout-container">
-      {/* Lớp phủ màn hình khi mở menu trên mobile */}
+      
       {sidebarOpen && (
         <div className="mobile-overlay" onClick={() => setSidebarOpen(false)} />
       )}
 
-      {/* --- SIDEBAR BÊN TRÁI --- */}
       <aside className={`admin-sidebar ${sidebarOpen ? "is-open" : ""}`}>
         <div className="sidebar-logo-section">
           <div className="logo-box">
@@ -90,7 +88,6 @@ export default function AdminLayout() {
         </div>
       </aside>
 
-      {/* --- PHẦN NỘI DUNG BÊN PHẢI --- */}
       <div className="admin-main-wrapper">
         <header className="admin-header">
           <div className="header-left">
@@ -116,7 +113,6 @@ export default function AdminLayout() {
 
             <div className="user-profile-block">
               <div className="user-info">
-                {/* SỬA LẠI THÀNH fullName CHO ĐÚNG VỚI BACKEND */}
                 <span className="user-name">
                   {user?.fullName || "Quản trị viên"}
                 </span>
@@ -132,7 +128,6 @@ export default function AdminLayout() {
           </div>
         </header>
 
-        {/* --- NỘI DUNG TRANG (Thay đổi tùy theo Route) --- */}
         <main className="admin-page-content">
           <Outlet />
         </main>

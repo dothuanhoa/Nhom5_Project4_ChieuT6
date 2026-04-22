@@ -1,12 +1,9 @@
-/* src/layouts/TeacherLayout/TeacherLayout.css */
-
 .teacher-layout-container {
   display: flex;
   height: 100vh;
   width: 100%;
 }
 
-/* --- SIDEBAR --- */
 .teacher-sidebar {
   width: var(--sidebar-width);
   background-color: #fff;

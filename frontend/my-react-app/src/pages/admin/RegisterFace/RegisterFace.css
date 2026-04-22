@@ -1,4 +1,4 @@
-//* --- PAGE HEADER --- */
+
 .page-header {
   margin-bottom: 24px;
 }
@@ -9,7 +9,6 @@
   letter-spacing: -0.02em;
 }
 
-/* --- LAYOUT GRID --- */
 .registration-grid {
   display: grid;
   grid-template-columns: 1fr 1fr;
@@ -23,7 +22,6 @@
   }
 }
 
-/* --- CARD & FORM STYLES --- */
 .edit-card {
   background: #fff;
   border-radius: 24px;
@@ -92,7 +90,6 @@
   cursor: not-allowed;
 }
 
-/* --- FORM BUTTONS --- */
 .form-actions-row {
   display: flex;
   justify-content: flex-end;
@@ -131,10 +128,9 @@
   cursor: not-allowed;
 }
 
-/* --- CAMERA / IMAGE SECTION --- */
 .camera-preview-box {
   width: 100%;
-  aspect-ratio: 3/4; /* Tỷ lệ khung hình chuẩn cho ảnh chân dung */
+  aspect-ratio: 3/4;
   max-height: 400px;
   border: 2px dashed #cbd5e1;
   border-radius: 16px;
@@ -207,7 +203,6 @@
   background: #e2e8f0;
 }
 
-/* --- PROGRESS BAR (TOAST) --- */
 .processing-toast {
   position: absolute;
   bottom: 20px;
@@ -243,7 +238,6 @@
   transition: width 0.3s ease;
 }
 
-/* --- INFO BOX (HƯỚNG DẪN) --- */
 .info-box {
   background: #eff6ff;
   border-radius: 16px;

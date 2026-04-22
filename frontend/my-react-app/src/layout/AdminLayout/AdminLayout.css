@@ -1,12 +1,9 @@
-/* src/styles/AdminLayout.css */
-
 .admin-layout-container {
   display: flex;
   height: 100vh;
   width: 100%;
 }
 
-/* SIDEBAR */
 .admin-sidebar {
   width: var(--sidebar-width);
   background-color: #fff;

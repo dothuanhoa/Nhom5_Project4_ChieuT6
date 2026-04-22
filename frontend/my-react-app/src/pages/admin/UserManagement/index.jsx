@@ -89,23 +89,21 @@ export default function UserManagement() {
           <table className="admin-table">
             <thead>
               <tr>
+                <th>STT</th>
                 <th>Họ và tên</th>
-                <th>Tên đăng nhập</th>
                 <th>Vai trò</th>
-                <th className="text-right">Thao tác</th>
+                <th>Thao tác</th>
               </tr>
             </thead>
             <tbody>
               {danhSachDaLoc.map((item, index) => (
                 <tr key={index}>
                   <td>
-                    <span className="bold-text">
-                      {item.fullName || "Chưa cập nhật"}
-                    </span>
+                    <strong>{index + 1}</strong>
                   </td>
                   <td>
-                    <span className="id-badge">
-                      {item.username ? item.username : "---"}
+                    <span className="bold-text">
+                      {item.fullName || "Chưa cập nhật"}
                     </span>
                   </td>
                   <td>
@@ -118,7 +116,7 @@ export default function UserManagement() {
                     </span>
                   </td>
                   <td>
-                    <div className="action-btns right-align">
+                    <div>
                       <button
                         className="btn-icon delete"
                         title="Xóa"
