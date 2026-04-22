@@ -4,18 +4,17 @@ import PrivateRoutes from "../components/PrivateRoutes";
 import { Navigate } from "react-router-dom";
 
 import Login from "../pages/auth";
-
 // ===  ADMIN ===
 import Classes from "../pages/admin/Classes";
-import ClassCreate from "../pages/admin/Classes/ClassCreate"; 
+import ClassCreate from "../pages/admin/Classes/ClassCreate";
 import ClassEdit from "../pages/admin/Classes/ClassEdit";
-// import ClassForm from "../pages/admin/ClassForm";
+import ClassAssign from "../pages/admin/Classes/ClassAssign";
 import RegisterFace from "../pages/admin/RegisterFace";
 import Students from "../pages/admin/Students";
 import AdminAttendanceHistory from "../pages/admin/AttendanceHistory";
 import StudentEdit from "../pages/admin/StudentEdit";
-
-
+import UserManagement from "../pages/admin/UserManagement";
+import UserRegister from "../pages/admin/UserManagement/UserRegister";
 // === GIÁO VIÊN ===
 import Attendance from "../pages/teacher/Attendance";
 import TeacherAttendanceHistory from "../pages/teacher/AttendanceHistory";
@@ -49,11 +48,15 @@ export const routes = [
           },
           {
             path: "classes/add",
-            element: <ClassCreate />, 
+            element: <ClassCreate />,
           },
           {
             path: "classes/edit/:id",
-            element: <ClassEdit />, 
+            element: <ClassEdit />,
+          },
+          {
+            path: "classes/assign/:id",
+            element: <ClassAssign />,
           },
           {
             path: "students",
@@ -70,6 +73,14 @@ export const routes = [
           {
             path: "attendance",
             element: <AdminAttendanceHistory />,
+          },
+          {
+            path: "users",
+            element: <UserManagement />,
+          },
+          {
+            path: "users/add",
+            element: <UserRegister />,
           },
         ],
       },

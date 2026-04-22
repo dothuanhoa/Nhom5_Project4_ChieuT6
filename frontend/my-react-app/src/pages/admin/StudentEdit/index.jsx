@@ -9,7 +9,6 @@ export default function StudentEdit() {
   const { id } = useParams();
   const navigate = useNavigate();
 
-  const [isLoading, setIsLoading] = useState(true);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [formData, setFormData] = useState({
     studentCode: "",
@@ -39,12 +38,12 @@ export default function StudentEdit() {
           navigate("/admin/students");
         }
       })
-      .catch(() => toast.error("Không thể tải thông tin sinh viên"))
-      .finally(() => setIsLoading(false));
+      .catch(() => toast.error("Không thể tải thông tin sinh viên"));
+    // ❌ đã xóa finally setIsLoading
   }, [id, navigate]);
   // End Call API lấy sinh viên
 
-  //Cập nhật sinh viên
+  // Cập nhật sinh viên
   const handleSubmit = (e) => {
     e.preventDefault();
     setIsSubmitting(true);
@@ -66,16 +65,7 @@ export default function StudentEdit() {
       .catch(() => toast.error("Cập nhật thất bại, vui lòng thử lại!"))
       .finally(() => setIsSubmitting(false));
   };
-  //end Cập nhật sinh viên
-
-  // --- HIỂN THỊ LOADING ---
-  if (isLoading) {
-    return (
-      <div className="loader-container">
-        <div className="spinner"></div>
-      </div>
-    );
-  }
+  // end Cập nhật sinh viên
 
   return (
     <div className="edit-container">

@@ -10,13 +10,12 @@ export default function Students() {
   const navigate = useNavigate();
 
   const [students, setStudents] = useState([]);
-  const [isLoading, setIsLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState("");
 
   // call API
   useEffect(() => {
-    setIsLoading(true);
     const token = localStorage.getItem("token");
+
     fetch(`${API_BASE_URL}/students`, {
       method: "GET",
       headers: {
@@ -26,8 +25,7 @@ export default function Students() {
     })
       .then((res) => res.json())
       .then((data) => setStudents(data))
-      .catch((err) => toast.error("Lỗi tải dữ liệu sinh viên"))
-      .finally(() => setIsLoading(false));
+      .catch((err) => toast.error("Lỗi tải dữ liệu sinh viên"));
   }, []);
   //End call API
 
@@ -43,8 +41,8 @@ export default function Students() {
 
   // call API delete
   const handleDelete = async (studentId) => {
-    if (!window.confirm("Bạn có chắc chắn muốn xóa sinh viên này?")) 
-      return;
+    if (!window.confirm("Bạn có chắc chắn muốn xóa sinh viên này?")) return;
+
     const token = localStorage.getItem("token");
 
     fetch(`${API_BASE_URL}/students/${studentId}`, {
@@ -61,26 +59,14 @@ export default function Students() {
   };
   //End call API delete
 
-  // loading
-  if (isLoading) {
-    return (
-      <div className="loader-container">
-        <div className="spinner"></div>
-        <p
-          className="loading-text"
-          style={{ marginTop: "16px", color: "#64748b", fontWeight: "500" }}
-        >
-          Đang tải dữ liệu...
-        </p>
-      </div>
-    );
-  }
-
   return (
     <div className="students-page">
       <div className="page-header">
         <h2 className="title-page">Quản lý sinh viên</h2>
-        <button className="btn-add-student" onClick={() => navigate("/admin/register-face")}>
+        <button
+          className="btn-add-student"
+          onClick={() => navigate("/admin/register-face")}
+        >
           <i className="fa-solid fa-plus"></i>
           <span>Thêm sinh viên mới</span>
         </button>
@@ -90,7 +76,6 @@ export default function Students() {
         <div className="search-filter-section">
           <div className="search-grid">
             <div className="search-input-box">
-              <i className="fa-solid fa-magnifying-glass"></i>
               <input
                 type="text"
                 placeholder="Tìm theo mã SV hoặc tên..."
@@ -162,7 +147,6 @@ export default function Students() {
                 </tr>
               ))}
 
-              {/* Xử lý khi gõ tìm kiếm mà không ra ai */}
               {danhSachDaLoc.length === 0 && (
                 <tr>
                   <td

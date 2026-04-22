@@ -1,15 +1,16 @@
 import React, { useState } from "react";
 import { Outlet, Link, useNavigate, useLocation } from "react-router-dom";
-import { useAuth } from "../../context/AuthContext";
 import "./TeacherLayout.css";
 
 export default function TeacherLayout() {
-  const { user, logout } = useAuth();
   const navigate = useNavigate();
   const location = useLocation();
   const [sidebarOpen, setSidebarOpen] = useState(false);
 
-  // Danh sách các mục menu cho giảng viên
+  const userString = localStorage.getItem("user");
+  const user = userString ? JSON.parse(userString) : null;
+
+  // Danh mục
   const menuItems = [
     {
       path: "/teacher",
@@ -22,17 +23,16 @@ export default function TeacherLayout() {
       label: "Danh sách điểm danh",
     },
   ];
+  //End  Danh mục
 
-  // --- GỬI API: Đăng xuất khỏi hệ thống ---
   const handleLogout = () => {
-    logout();
+    localStorage.removeItem("token");
+    localStorage.removeItem("user");
     navigate("/login");
   };
-  // --- END GỬI API ---
 
   return (
     <div className="teacher-layout-container">
-      {/* Lớp phủ cho thiết bị di động */}
       {sidebarOpen && (
         <div
           className="teacher-overlay"
@@ -40,7 +40,6 @@ export default function TeacherLayout() {
         />
       )}
 
-      {/* --- CỘT MENU BÊN TRÁI (SIDEBAR) --- */}
       <aside className={`teacher-sidebar ${sidebarOpen ? "is-open" : ""}`}>
         <div className="teacher-sidebar-header">
           <div className="teacher-logo-box">
@@ -77,7 +76,6 @@ export default function TeacherLayout() {
         </div>
       </aside>
 
-      {/* --- KHU VỰC NỘI DUNG CHÍNH --- */}
       <div className="teacher-main-wrapper">
         <header className="teacher-header">
           <div className="teacher-header-left">
@@ -97,13 +95,13 @@ export default function TeacherLayout() {
             <div className="teacher-user-block">
               <div className="teacher-user-info">
                 <span className="teacher-user-name">
-                  {user?.name || "Giảng viên"}
+                  {user?.fullName || "Giảng viên"}
                 </span>
                 <span className="teacher-user-role">Giảng viên</span>
               </div>
               <div className="teacher-avatar">
                 <img
-                  src={`https://ui-avatars.com/api/?name=${user?.name || "Teacher"}&background=083c96&color=fff&bold=true`}
+                  src={`https://ui-avatars.com/api/?name=${user?.fullName || "Teacher"}&background=083c96&color=fff&bold=true`}
                   alt="Avatar"
                 />
               </div>
@@ -111,7 +109,6 @@ export default function TeacherLayout() {
           </div>
         </header>
 
-        {/* Nơi chứa nội dung của từng trang con */}
         <main className="teacher-content-scroll">
           <Outlet />
         </main>

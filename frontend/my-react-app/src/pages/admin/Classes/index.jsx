@@ -8,15 +8,11 @@ const API_BASE_URL = "https://api-backend-spring-nhom5-chieut6.onrender.com";
 export default function Classes() {
   const navigate = useNavigate();
   const [classes, setClasses] = useState([]);
-  const [isLoading, setIsLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState("");
-
-  // const [showAssignModal, setShowAssignModal] = useState(false);
   const [selectedClass, setSelectedClass] = useState(null);
 
   // call API classes
   useEffect(() => {
-    setIsLoading(true);
     const token = localStorage.getItem("token");
     fetch(`${API_BASE_URL}/classes`, {
       method: "GET",
@@ -30,8 +26,7 @@ export default function Classes() {
         const listData = data.classes || data || [];
         setClasses(listData);
       })
-      .catch((err) => toast.error("Lỗi tải danh sách lớp học"))
-      .finally(() => setIsLoading(false));
+      .catch((err) => toast.error("Lỗi tải danh sách lớp học"));
   }, []);
   // End call API classes
 
@@ -64,21 +59,6 @@ export default function Classes() {
   };
   //End Call API delete
 
-  const handleAssignStudents = (cls) => {
-    setSelectedClass(cls);
-    setShowAssignModal(true); // Bật popup lên
-  };
-  // --- END XỬ LÝ ---
-
-  // --- HIỂN THỊ LOADING ---
-  if (isLoading) {
-    return (
-      <div className="loader-container">
-        <div className="spinner"></div>
-      </div>
-    );
-  }
-
   return (
     <div className="classes-page">
       <div className="page-header">
@@ -92,7 +72,6 @@ export default function Classes() {
         <div className="search-filter-section">
           <div className="search-grid" style={{ width: "100%" }}>
             <div className="search-input-box">
-              <i className="fa-solid fa-magnifying-glass"></i>
               <input
                 type="text"
                 placeholder="Tìm mã môn, tên môn..."
@@ -131,7 +110,7 @@ export default function Classes() {
                       <button
                         className="btn-icon"
                         title="Thêm SV"
-                        onClick={() => handleAssignStudents(item)}
+                        onClick={() => navigate(`assign/${item.id}`)}
                       >
                         <i className="fa-solid fa-user-plus"></i>
                       </button>
@@ -172,14 +151,6 @@ export default function Classes() {
           </table>
         </div>
       </div>
-
-      {/* Modal Thêm Sinh Viên */}
-      {/* <AssignStudentModal 
-        showAssignModal={showAssignModal}
-        setShowAssignModal={setShowAssignModal}
-        selectedClass={selectedClass}
-        onSuccess={fetchClasses}
-      /> */}
     </div>
   );
 }

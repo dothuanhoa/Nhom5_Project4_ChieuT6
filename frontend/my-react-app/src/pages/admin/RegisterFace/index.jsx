@@ -12,7 +12,6 @@ export default function RegisterFace() {
   const [fullName, setFullName] = useState("");
   const [imageFile, setImageFile] = useState(null);
   const [imagePreview, setImagePreview] = useState(null);
-  const [isLoading, setIsLoading] = useState(false);
   const fileInputRef = useRef(null);
 
   // chọn ảnh kéo thả ảnh
@@ -49,18 +48,21 @@ export default function RegisterFace() {
     if (!imageFile) return toast.error("Vui lòng tải lên ảnh khuôn mặt!");
     if (!studentCode.trim() || !fullName.trim())
       return toast.error("Vui lòng nhập đủ thông tin!");
-    setIsLoading(true);
+
     const token = localStorage.getItem("token");
     try {
       const formImage = new FormData();
       formImage.append("image", imageFile);
+
       const aiFace = await fetch(`${API_BASE_URL}/ai-vision/register`, {
         method: "POST",
         headers: { Authorization: `Bearer ${token}` },
         body: formImage,
       });
+
       if (!aiFace.ok)
         throw new Error("Nhận diện khuôn mặt thất bại trên hệ thống AI.");
+
       const aiData = await aiFace.json();
       const faceId = aiData.faceId || aiData.id;
 
@@ -81,15 +83,15 @@ export default function RegisterFace() {
 
       if (!stdRes.ok)
         throw new Error("Lưu thông tin sinh viên vào Database thất bại.");
+
       toast.success("Đăng ký khuôn mặt và hồ sơ thành công!");
+
       setTimeout(() => {
         navigate("/admin/students");
       }, 1500);
     } catch (error) {
       console.error(error);
       toast.error(error.message || "Có lỗi xảy ra, vui lòng thử lại!");
-    } finally {
-      setIsLoading(false);
     }
   };
   //End Call API
@@ -118,7 +120,6 @@ export default function RegisterFace() {
                   placeholder="Ví dụ: DH52200988"
                   value={studentCode}
                   onChange={(e) => setStudentCode(e.target.value)}
-                  disabled={isLoading}
                   required
                 />
               </div>
@@ -130,7 +131,6 @@ export default function RegisterFace() {
                   placeholder="Nhập tên đầy đủ của sinh viên"
                   value={fullName}
                   onChange={(e) => setFullName(e.target.value)}
-                  disabled={isLoading}
                   required
                 />
               </div>
@@ -141,25 +141,17 @@ export default function RegisterFace() {
                 type="button"
                 className="btn-cancel"
                 onClick={handleReset}
-                disabled={isLoading}
               >
                 Hủy
               </button>
+
               <button
                 form="face-reg-form"
                 type="submit"
                 className="btn-save"
-                disabled={isLoading || !imageFile}
+                disabled={!imageFile}
               >
-                {isLoading ? (
-                  <>
-                    <i className="fa-solid fa-spinner fa-spin"></i> Đang xử lý...
-                  </>
-                ) : (
-                  <>
-                    <i className="fa-solid fa-check-circle"></i> Xác nhận đăng ký
-                  </>
-                )}
+                <i className="fa-solid fa-check-circle"></i> Xác nhận đăng ký
               </button>
             </div>
           </div>
@@ -209,7 +201,6 @@ export default function RegisterFace() {
               <button
                 className="btn-secondary btn-rounded"
                 onClick={() => fileInputRef.current?.click()}
-                disabled={isLoading}
               >
                 <i className="fa-solid fa-camera-rotate btn-icon-left"></i>
                 {imagePreview ? "Chọn hình ảnh khác" : "Tải ảnh từ thiết bị"}

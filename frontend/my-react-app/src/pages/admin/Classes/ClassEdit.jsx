@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { toast } from "sonner";
-import "./Classes.css"; // Dùng chung CSS ở đây
+import "./Classes.css";
 
 const API_BASE_URL = "https://api-backend-spring-nhom5-chieut6.onrender.com";
 
@@ -9,7 +9,6 @@ export default function ClassEdit() {
   const { id } = useParams();
   const navigate = useNavigate();
 
-  const [isLoading, setIsLoading] = useState(true);
   const [courseCode, setCourseCode] = useState("");
   const [courseName, setCourseName] = useState("");
   const [groupNumber, setGroupNumber] = useState("");
@@ -46,13 +45,10 @@ export default function ClassEdit() {
         }
       } catch (error) {
         toast.error("Lỗi tải dữ liệu");
-      } finally {
-        setIsLoading(false);
       }
     };
     fetchData();
   }, [id]);
-
   //End Call API lớp và sinh viên theo hoc
 
   const handleSubmit = async (e) => {
@@ -78,13 +74,6 @@ export default function ClassEdit() {
     }
   };
 
-  if (isLoading)
-    return (
-      <div className="loader-container">
-        <div className="spinner"></div>
-      </div>
-    );
-
   return (
     <div className="edit-container">
       <div className="header-with-back">
@@ -105,6 +94,7 @@ export default function ClassEdit() {
           >
             <h3 style={{ margin: 0, fontSize: "18px" }}>Thông tin môn học</h3>
           </div>
+
           <form onSubmit={handleSubmit}>
             <div className="form-group" style={{ marginBottom: "15px" }}>
               <label style={{ fontWeight: "bold" }}>Mã môn học</label>
@@ -115,6 +105,7 @@ export default function ClassEdit() {
                 required
               />
             </div>
+
             <div className="form-group" style={{ marginBottom: "15px" }}>
               <label style={{ fontWeight: "bold" }}>Tên môn học</label>
               <input
@@ -124,6 +115,7 @@ export default function ClassEdit() {
                 required
               />
             </div>
+
             <div className="form-group" style={{ marginBottom: "15px" }}>
               <label style={{ fontWeight: "bold" }}>Nhóm / Tổ</label>
               <input
@@ -133,9 +125,14 @@ export default function ClassEdit() {
                 required
               />
             </div>
+
             <div
               className="edit-actions"
-              style={{ marginTop: "20px", display: "flex", gap: "10px" }}
+              style={{
+                marginTop: "20px",
+                display: "flex",
+                gap: "10px",
+              }}
             >
               <button
                 type="button"
@@ -144,6 +141,7 @@ export default function ClassEdit() {
               >
                 Hủy bỏ
               </button>
+
               <button type="submit" className="btn-save">
                 Lưu thay đổi
               </button>
@@ -163,6 +161,7 @@ export default function ClassEdit() {
               Sinh viên đang theo học ({students.length})
             </h3>
           </div>
+
           <div
             className="student-list-container"
             style={{ maxHeight: "400px", overflowY: "auto" }}
@@ -187,7 +186,12 @@ export default function ClassEdit() {
                     <tr key={sv.id} style={{ borderBottom: "1px solid #eee" }}>
                       <td style={{ padding: "10px" }}>{index + 1}</td>
                       <td style={{ padding: "10px" }}>{sv.studentCode}</td>
-                      <td style={{ padding: "10px", fontWeight: "bold" }}>
+                      <td
+                        style={{
+                          padding: "10px",
+                          fontWeight: "bold",
+                        }}
+                      >
                         {sv.fullName}
                       </td>
                     </tr>
@@ -196,7 +200,11 @@ export default function ClassEdit() {
               </table>
             ) : (
               <div
-                style={{ textAlign: "center", padding: "30px", color: "#888" }}
+                style={{
+                  textAlign: "center",
+                  padding: "30px",
+                  color: "#888",
+                }}
               >
                 <p>Lớp học này chưa có sinh viên nào.</p>
               </div>

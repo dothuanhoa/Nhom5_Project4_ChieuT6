@@ -1,13 +1,14 @@
 import React, { useState } from "react";
 import { Outlet, Link, useNavigate, useLocation } from "react-router-dom";
-import { useAuth } from "../../context/AuthContext";
 import "./AdminLayout.css";
 
 export default function AdminLayout() {
-  const { user, logout } = useAuth();
   const navigate = useNavigate();
   const location = useLocation();
   const [sidebarOpen, setSidebarOpen] = useState(false);
+
+  const userString = localStorage.getItem("user");
+  const user = userString ? JSON.parse(userString) : null;
 
   const menuItems = [
     {
@@ -30,14 +31,20 @@ export default function AdminLayout() {
       icon: "fa-solid fa-clock-rotate-left",
       label: "Lịch sử Điểm Danh",
     },
+    {
+      path: "/admin/users",
+      icon: "fa-solid fa-user-gear",
+      label: "Quản lý tài khoản",
+    },
+
   ];
 
-  // --- API CALL: Xử lý Đăng xuất ---
+  // 2. XỬ LÝ ĐĂNG XUẤT (Xóa thẳng trong bộ nhớ rồi đá về trang login)
   const handleLogout = () => {
-    logout();
+    localStorage.removeItem("token");
+    localStorage.removeItem("user");
     navigate("/login");
   };
-  // --- END API CALL ---
 
   return (
     <div className="admin-layout-container">
@@ -109,14 +116,15 @@ export default function AdminLayout() {
 
             <div className="user-profile-block">
               <div className="user-info">
+                {/* SỬA LẠI THÀNH fullName CHO ĐÚNG VỚI BACKEND */}
                 <span className="user-name">
-                  {user?.name || "Quản trị viên"}
+                  {user?.fullName || "Quản trị viên"}
                 </span>
                 <span className="user-role">Quản trị viên</span>
               </div>
               <div className="user-avatar">
                 <img
-                  src={`https://ui-avatars.com/api/?name=${user?.name || "Admin"}&background=083c96&color=fff&bold=true`}
+                  src={`https://ui-avatars.com/api/?name=${user?.fullName || "Admin"}&background=083c96&color=fff&bold=true`}
                   alt="Avatar"
                 />
               </div>

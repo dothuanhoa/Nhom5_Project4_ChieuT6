@@ -1,38 +1,41 @@
 import React, { useState, useEffect } from "react";
-// import { attendanceService } from "../../../services/api_Admin";
 import "./AttendanceHistory.css";
 
+const API_BASE_URL = "https://api-backend-spring-nhom5-chieut6.onrender.com";
+
 export default function AttendanceHistory() {
-  // --- STATE ---
+  const [classes, setClasses] = useState([]);
+  const [selectedClassId, setSelectedClassId] = useState("");
+
   const [records, setRecords] = useState([]);
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedClass, setSelectedClass] = useState("all");
-  // --- END STATE ---
 
-  // --- FETCH API ---
+  //Call API classes
   useEffect(() => {
-    const fetchData = async () => {
-      const res = await attendanceService.getRecords();
-      if (res && res.records) {
-        setRecords(res.records);
-      }
-    };
-    fetchData();
+    const token = localStorage.getItem("token");
+    fetch(`${API_BASE_URL}/classes`, {
+      headers: { Authorization: `Bearer ${token}` },
+    })
+      .then((res) => res.json())
+      .then((data) => {
+        const listClasses = data.classes || data || [];
+        setClasses(listClasses);
+        if (listClasses.length > 0) setSelectedClassId(listClasses[0].id);
+      })
+      .catch(() => toast.error("Lỗi tải danh sách lớp học"));
   }, []);
-  // --- END FETCH API ---
+  //Call API classes
 
-  // --- FILTER DATA ---
-  let danhSachDaLoc = records.filter((item) => {
-    const dungTen = item.studentName
-      .toLowerCase()
-      .includes(searchTerm.toLowerCase());
-    const dungLop = selectedClass === "all" || item.classId === selectedClass;
-
-    return dungTen && dungLop;
+  //Tìm kiếm
+  const danhSachDaLoc = records.filter((r) => {
+    const khopTimKiem =
+      r.studentName.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      r.studentId.toLowerCase().includes(searchTerm.toLowerCase());
+    return khopTimKiem;
   });
-  // --- END FILTER DATA ---
+  //End Tìm kiếm
 
-  // --- RENDER UI ---
   return (
     <div className="attendance-page">
       <div className="page-header">
@@ -48,18 +51,19 @@ export default function AttendanceHistory() {
               value={selectedClass}
               onChange={(e) => setSelectedClass(e.target.value)}
             >
-              <option value="all">Tất cả lớp học</option>
-              <option value="CS101">Cơ sở dữ liệu - CS101</option>
-              <option value="SE204">Thiết kế phần mềm - SE204</option>
+              {classes.map((item) => (
+                <option key={item.id} value={item.id}>
+                  {item.courseCode || item.courseId} - {item.courseName}
+                </option>
+              ))}
             </select>
           </div>
 
           <div className="form-group no-margin">
             <label className="form-label">Tìm kiếm</label>
             <div className="search-input-box">
-              <i className="fa-solid fa-magnifying-glass"></i>
               <input
-                placeholder="Gõ tên sinh viên vào đây..."
+                placeholder="Tên hoặc mã SV..."
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
               />
@@ -73,28 +77,23 @@ export default function AttendanceHistory() {
           <table className="admin-table">
             <thead>
               <tr>
+                <th>Mã Sinh Viên</th>
                 <th>Sinh viên</th>
-                <th>Mã SV / Lớp</th>
-                <th>Độ khớp</th>
+                <th>Trạng thái</th>
               </tr>
             </thead>
             <tbody>
               {danhSachDaLoc.map((record) => (
                 <tr key={record.id}>
                   <td>
-                    <div className="student-info-cell">
-                      <b>{record.studentName}</b>
-                    </div>
+                    <span className="id-badge-text">{record.studentId}</span>
                   </td>
                   <td>
-                    <span className="bold-text">{record.studentId}</span>
-                    <div className="small-muted">{record.classId}</div>
-                  </td>
-                  <td>
-                    <span className="similarity-score">
-                      {record.similarity}%
+                    <span className="student-name-bold">
+                      {record.studentName}
                     </span>
                   </td>
+                  <td>{record.status}</td>
                 </tr>
               ))}
             </tbody>

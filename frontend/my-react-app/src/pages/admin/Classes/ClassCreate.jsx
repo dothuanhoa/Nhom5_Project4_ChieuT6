@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { toast } from "sonner";
-import "./Classes.css"; // Dùng chung CSS ở đây
+import "./Classes.css";
 
 const API_BASE_URL = "https://api-backend-spring-nhom5-chieut6.onrender.com";
 
@@ -10,11 +10,9 @@ export default function ClassCreate() {
   const [courseCode, setCourseCode] = useState("");
   const [courseName, setCourseName] = useState("");
   const [groupNumber, setGroupNumber] = useState("");
-  const [isLoading, setIsLoading] = useState(false);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    setIsLoading(true);
     const token = localStorage.getItem("token");
 
     const payload = { courseCode, courseName, groupNumber };
@@ -35,8 +33,6 @@ export default function ClassCreate() {
       navigate("/admin/classes");
     } catch (error) {
       toast.error(error.message);
-    } finally {
-      setIsLoading(false);
     }
   };
 
@@ -93,8 +89,9 @@ export default function ClassCreate() {
               >
                 Hủy bỏ
               </button>
-              <button type="submit" className="btn-save" disabled={isLoading}>
-                {isLoading ? "Đang xử lý..." : "Xác nhận tạo"}
+
+              <button type="submit" className="btn-save">
+                Xác nhận tạo
               </button>
             </div>
           </form>

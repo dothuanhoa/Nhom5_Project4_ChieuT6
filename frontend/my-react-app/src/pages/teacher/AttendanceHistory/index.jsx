@@ -1,50 +1,40 @@
 import React, { useState, useEffect } from "react";
-// import { teacherService } from "../../../services/api_Teacher";
 import { toast } from "sonner";
 import "./AttendanceHistory.css";
 
+const API_BASE_URL = "https://api-backend-spring-nhom5-chieut6.onrender.com";
+
 export default function AttendanceHistory() {
+  const [classes, setClasses] = useState([]);
+  const [selectedClassId, setSelectedClassId] = useState("");
+
   const [records, setRecords] = useState([]);
   const [searchTerm, setSearchTerm] = useState("");
-  const [selectedClass, setSelectedClass] = useState("CS101");
-  const [loading, setLoading] = useState(false);
 
-  // --- CALL API: Lấy lịch sử điểm danh ---
-  const fetchHistory = async () => {
-    setLoading(true);
-    try {
-      const res = await teacherService.getClassHistory(
-        selectedClass,
-        "2023-10-27",
-      );
-      setRecords(res.records || []);
-    } catch (error) {
-      toast.error("Không thể tải dữ liệu");
-    } finally {
-      setLoading(false);
-    }
-  };
-  // --- END CALL API ---
-
+  //Call API classes
   useEffect(() => {
-    fetchHistory();
-  }, [selectedClass]);
+    const token = localStorage.getItem("token");
+    fetch(`${API_BASE_URL}/classes`, {
+      headers: { Authorization: `Bearer ${token}` },
+    })
+      .then((res) => res.json())
+      .then((data) => {
+        const listClasses = data.classes || data || [];
+        setClasses(listClasses);
+        if (listClasses.length > 0) setSelectedClassId(listClasses[0].id);
+      })
+      .catch(() => toast.error("Lỗi tải danh sách lớp học"));
+  }, []);
+  //Call API classes
 
+  //Tìm kiếm
   const danhSachDaLoc = records.filter((r) => {
-    const daXacMinh = r.status !== "pending";
     const khopTimKiem =
       r.studentName.toLowerCase().includes(searchTerm.toLowerCase()) ||
       r.studentId.toLowerCase().includes(searchTerm.toLowerCase());
-    return daXacMinh && khopTimKiem;
+    return khopTimKiem;
   });
-
-  const getStatusBadge = (status) => {
-    if (status === "present")
-      return <span className="stat-badge success">Có mặt</span>;
-    if (status === "late")
-      return <span className="stat-badge warning">Đi muộn</span>;
-    return <span className="stat-badge danger">Vắng mặt</span>;
-  };
+  //End Tìm kiếm
 
   return (
     <div className="attendance-history-page">
@@ -56,51 +46,57 @@ export default function AttendanceHistory() {
             <label className="form-label">Lớp học</label>
             <select
               className="input-field"
-              value={selectedClass}
-              onChange={(e) => setSelectedClass(e.target.value)}
+              value={selectedClassId}
+              onChange={(e) => setSelectedClassId(e.target.value)}
             >
-              <option value="CS101">Cơ sở dữ liệu - CS101</option>
-              <option value="SE204">Thiết kế phần mềm - SE204</option>
+              {classes.map((item) => (
+                <option key={item.id} value={item.id}>
+                  {item.courseCode || item.courseId} - {item.courseName}
+                </option>
+              ))}
             </select>
           </div>
 
           <div className="form-group" style={{ flex: 2 }}>
             <label className="form-label">Tìm kiếm</label>
-            <input
-              className="input-field"
-              placeholder="Tên hoặc mã SV..."
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
-            />
+            <div className="search-input-box">
+              <input
+                placeholder="Tên hoặc mã SV..."
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+              />
+            </div>
           </div>
         </div>
       </div>
 
       <div className="table-wrapper">
-        <table className="admin-table">
-          <thead>
-            <tr>
-              <th>Sinh viên</th>
-              <th>Mã SV</th>
-              <th>Giờ đến</th>
-              <th>Trạng thái</th>
-            </tr>
-          </thead>
-          <tbody>
-            {danhSachDaLoc.map((record) => (
-              <tr key={record.id}>
-                <td>
-                  <b>{record.studentName}</b>
-                </td>
-                <td>
-                  <span className="id-badge-text">{record.studentId}</span>
-                </td>
-                <td>{record.time}</td>
-                <td>{getStatusBadge(record.status)}</td>
+        <div className="admin-table-container">
+          <table className="admin-table">
+            <thead>
+              <tr>
+                <th>Mã Sinh Viên</th>
+                <th>Sinh viên</th>
+                <th>Trạng thái</th>
               </tr>
-            ))}
-          </tbody>
-        </table>
+            </thead>
+            <tbody>
+              {danhSachDaLoc.map((record) => (
+                <tr key={record.id}>
+                  <td>
+                    <span className="id-badge-text">{record.studentId}</span>
+                  </td>
+                  <td>
+                    <span className="student-name-bold">
+                      {record.studentName}
+                    </span>
+                  </td>
+                  <td>{record.status}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
       </div>
     </div>
   );

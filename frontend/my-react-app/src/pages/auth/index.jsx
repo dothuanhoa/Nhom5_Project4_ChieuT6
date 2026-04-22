@@ -1,45 +1,61 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { useAuth } from "../../context/AuthContext";
-import { toast } from "sonner";
+import { Toaster, toast } from "sonner";
 
-// Import CSS thuần cho Login
 import "./Auth.css";
 
+const API_BASE_URL = "https://api-backend-spring-nhom5-chieut6.onrender.com";
+
 export default function Login() {
-  const [email, setEmail] = useState("");
+  const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const [rememberMe, setRememberMe] = useState(false);
-  const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState("");
-  const { login } = useAuth();
+
   const navigate = useNavigate();
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError("");
-    setIsLoading(true);
+    //call API login
     try {
-      const success = await login(email, password);
-      if (success) {
-        toast.success("Đăng nhập thành công!");
-        const userData = JSON.parse(localStorage.getItem("user"));
-        navigate(userData?.role === "admin" ? "/admin" : "/teacher");
+      const res = await fetch(`${API_BASE_URL}/auth/login`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ username, password }),
+      });
+
+      if (!res.ok) {
+        setError("Tài khoản không chính xác");
+        return;
+      }
+
+      const data = await res.json();
+
+      localStorage.setItem("token", data.token || data.accessToken);
+      localStorage.setItem("user", JSON.stringify(data.user || data));
+
+      toast.success("Đăng nhập thành công!");
+
+      const userRole = (data.user?.role || data.role)?.toLowerCase();
+
+      if (userRole === "admin") {
+        navigate("/admin");
       } else {
-        setError("Email hoặc mật khẩu không chính xác");
-        toast.error("Đăng nhập thất bại");
+        navigate("/teacher");
       }
     } catch (err) {
       setError("Hệ thống đang bận. Vui lòng thử lại sau");
-      toast.error("Đã xảy ra lỗi");
-    } finally {
-      setIsLoading(false);
+      toast.error("Đã xảy ra lỗi kết nối mạng");
     }
+    //End call API login
   };
 
   return (
     <div className="login-container">
+      <Toaster position="top-right" />
+
       <div className="login-card">
         <header className="login-header">
           <div className="logo-wrapper">
@@ -58,16 +74,16 @@ export default function Login() {
 
         <form onSubmit={handleSubmit} className="login-form">
           <div className="form-group">
-            <label htmlFor="email">Email</label>
+            <label htmlFor="username">Tên đăng nhập</label>
             <div className="input-wrapper">
-              <i className="fa-solid fa-at input-icon-left"></i>
+              <i className="fa-solid fa-user input-icon-left"></i>
               <input
-                id="email"
-                type="email"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
+                id="username"
+                type="text"
+                value={username}
+                onChange={(e) => setUsername(e.target.value)}
                 className="login-input"
-                placeholder="nguyenvan@facecheck.vn"
+                placeholder="Ví dụ: admin"
                 required
               />
             </div>
@@ -91,7 +107,11 @@ export default function Login() {
                 onClick={() => setShowPassword(!showPassword)}
                 className="password-toggle"
               >
-                <i className={`fa-solid ${showPassword ? "fa-eye-slash" : "fa-eye"}`}></i>
+                <i
+                  className={`fa-solid ${
+                    showPassword ? "fa-eye-slash" : "fa-eye"
+                  }`}
+                ></i>
               </button>
             </div>
           </div>
@@ -105,21 +125,14 @@ export default function Login() {
               />
               <span>Ghi nhớ đăng nhập</span>
             </label>
-            <a href="#" className="forgot-password">Quên mật khẩu?</a>
+            <a href="#" className="forgot-password">
+              Quên mật khẩu?
+            </a>
           </div>
 
-          <button type="submit" disabled={isLoading} className="submit-btn">
-            {isLoading ? (
-              <>
-                <i className="fa-solid fa-spinner fa-spin"></i>
-                <span>Đang xử lý...</span>
-              </>
-            ) : (
-              <>
-                <span>Đăng nhập</span>
-                <i className="fa-solid fa-arrow-right"></i>
-              </>
-            )}
+          <button type="submit" className="submit-btn">
+            <span>Đăng nhập</span>
+            <i className="fa-solid fa-arrow-right"></i>
           </button>
         </form>
 
