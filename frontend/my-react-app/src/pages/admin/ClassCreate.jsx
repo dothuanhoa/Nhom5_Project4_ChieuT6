@@ -3,6 +3,8 @@ import { useNavigate } from "react-router-dom";
 import { toast } from "sonner";
 import "../../assets/styles/AdminStyle.css";
 
+import HeaderWithBack from "../../components/HeaderWithBack";
+
 const API_BASE_URL = "https://api-backend-spring-nhom5-chieut6.onrender.com";
 
 export default function ClassCreate() {
@@ -33,12 +35,7 @@ export default function ClassCreate() {
 
   return (
     <div className="edit-container">
-      <div className="header-with-back">
-        <button className="btn-back" onClick={() => navigate("/admin/classes")}>
-          <i className="fa-solid fa-arrow-left"></i>
-        </button>
-        <h2 className="dashboard-title">Tạo lớp học mới</h2>
-      </div>
+      <HeaderWithBack title="Tạo lớp học mới"/>
 
       <div className="single-column-layout">
         <div className="edit-card">

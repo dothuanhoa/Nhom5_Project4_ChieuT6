@@ -3,6 +3,8 @@ import { useNavigate } from "react-router-dom";
 import { toast } from "sonner";
 import "../../assets/styles/AdminStyle.css";
 
+import SearchBar from "../../components/SearchBar";
+
 const API_BASE_URL = "https://api-backend-spring-nhom5-chieut6.onrender.com";
 
 export default function Classes() {
@@ -66,14 +68,11 @@ export default function Classes() {
       <div className="table-wrapper">
         <div className="search-filter-section">
           <div className="search-grid" style={{ width: "100%" }}>
-            <div className="search-input-box">
-              <input
-                type="text"
-                placeholder="Tìm mã môn, tên môn..."
-                value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
-              />
-            </div>
+            <SearchBar
+              value={searchTerm}
+              onChange={setSearchTerm}
+              placeholder="Tìm mã môn, tên môn..."
+            />
           </div>
         </div>
         <div className="admin-table-container">

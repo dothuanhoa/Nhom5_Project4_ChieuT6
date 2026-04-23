@@ -3,6 +3,10 @@ import { useParams, useNavigate } from "react-router-dom";
 import { toast } from "sonner";
 import "../../assets/styles/AdminStyle.css";
 
+import SearchBar from "../../components/SearchBar";
+
+import HeaderWithBack from "../../components/HeaderWithBack";
+
 const API_BASE_URL = "https://api-backend-spring-nhom5-chieut6.onrender.com";
 
 export default function ClassAssign() {
@@ -77,26 +81,16 @@ export default function ClassAssign() {
 
   return (
     <div className="classes-page">
-      <div className="header-with-back">
-        <button className="btn-back" onClick={() => navigate(-1)}>
-          <i className="fa-solid fa-arrow-left"></i>
-        </button>
-        <div>
-          <h2 className="dashboard-title">Thêm sinh viên vào lớp</h2>
-        </div>
-      </div>
+      <HeaderWithBack title="Thêm sinh viên vào lớp" />
 
       <div className="table-wrapper">
         <div className="search-filter-section">
           <div className="search-grid">
-            <div className="search-input-box">
-              <input
-                type="text"
-                placeholder="Tìm kiếm..."
-                value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
-              />
-            </div>
+            <SearchBar
+              value={searchTerm}
+              onChange={setSearchTerm}
+              placeholder="Tìm kiếm..."
+            />
           </div>
         </div>
 

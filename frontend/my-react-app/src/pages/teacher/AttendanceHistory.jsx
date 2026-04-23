@@ -3,6 +3,8 @@ import { toast } from "sonner";
 import dayjs from "dayjs";
 import "../../assets/styles/TeacherStyle.css";
 
+import SearchBar from "../../components/SearchBar";
+
 const API_BASE_URL = "https://api-backend-spring-nhom5-chieut6.onrender.com";
 const NODE_API_URL = "https://api-backend-node-nhom5-chieut6.onrender.com";
 const EXPORT_API_URL = "https://nhom5-project4-chieut6-1.onrender.com";
@@ -140,13 +142,11 @@ export default function AttendanceHistory() {
 
           <div className="form-group" style={{ flex: 2 }}>
             <label className="form-label">Tìm kiếm</label>
-            <div className="search-input-box">
-              <input
-                placeholder="Tên hoặc mã SV..."
-                value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
-              />
-            </div>
+            <SearchBar
+              value={searchTerm}
+              onChange={setSearchTerm}
+              placeholder="Tên hoặc mã SV..."
+            />
           </div>
         </div>
         <div

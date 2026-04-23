@@ -1,8 +1,9 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { toast } from "sonner";
-
 import "../../assets/styles/AdminStyle.css";
+
+import HeaderWithBack from "../../components/HeaderWithBack";
 
 const API_BASE_URL = "https://api-backend-spring-nhom5-chieut6.onrender.com";
 
@@ -53,12 +54,7 @@ export default function Register() {
 
   return (
     <div className="user-management-page">
-      <div className="header-with-back" style={{ marginBottom: "20px" }}>
-        <button className="btn-back" onClick={() => navigate(-1)}>
-          <i className="fa-solid fa-arrow-left"></i>
-        </button>
-        <h2 className="dashboard-title">Thêm tài khoản mới</h2>
-      </div>
+      <HeaderWithBack title="Tạo tài khoản" />
 
       <div className="single-column-layout">
         <div className="edit-card">

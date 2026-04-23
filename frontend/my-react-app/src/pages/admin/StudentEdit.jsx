@@ -3,6 +3,8 @@ import { useParams, useNavigate } from "react-router-dom";
 import { toast } from "sonner";
 import "../../assets/styles/AdminStyle.css";
 
+import HeaderWithBack from "../../components/HeaderWithBack";
+
 const API_BASE_URL = "https://api-backend-spring-nhom5-chieut6.onrender.com";
 
 export default function StudentEdit() {
@@ -58,17 +60,7 @@ export default function StudentEdit() {
 
   return (
     <div className="edit-container">
-      <div className="header-with-back">
-        <button
-          className="btn-back"
-          onClick={() => navigate("/admin/students")}
-          title="Quay lại"
-        >
-          <i className="fa-solid fa-arrow-left"></i>
-        </button>
-        <h2 className="dashboard-title">Chỉnh sửa hồ sơ sinh viên</h2>
-      </div>
-
+      <HeaderWithBack title="Chỉnh sửa hồ sơ sinh viên" />
       <div className="edit-card edit-form-students">
         <form onSubmit={handleSubmit}>
           <div className="form-group">

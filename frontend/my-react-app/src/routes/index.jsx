@@ -4,7 +4,6 @@ import PrivateRoutes from "../components/PrivateRoutes";
 import { Navigate } from "react-router-dom";
 
 import Login from "../pages/Auth.jsx";
-// ===  ADMIN ===
 import ClassEdit from "../pages/admin/ClassEdit.jsx";
 import Classes from "../pages/admin/Classes.jsx";
 import ClassCreate from "../pages/admin/ClassCreate.jsx";
@@ -15,7 +14,6 @@ import AdminAttendanceHistory from "../pages/admin/AttendanceHistory.jsx";
 import StudentEdit from "../pages/admin/StudentEdit.jsx";
 import UserManagement from "../pages/admin/UserManagement.jsx";
 import UserRegister from "../pages/admin/UserRegister.jsx";
-// === GIÁO VIÊN ===
 import Attendance from "../pages/teacher/Attendance.jsx";
 import TeacherAttendanceHistory from "../pages/teacher/AttendanceHistory.jsx";
 
@@ -28,9 +26,6 @@ export const routes = [
     path: "/",
     element: <Navigate to="/login" />,
   },
-  // ==========================================
-  // 1. NHÓM ADMIN
-  // ==========================================
   {
     path: "/admin",
     element: <PrivateRoutes />,
@@ -86,10 +81,6 @@ export const routes = [
       },
     ],
   },
-
-  // ==========================================
-  // 2. NHÓM GIÁO VIÊN
-  // ==========================================
   {
     path: "/teacher",
     element: <PrivateRoutes />,

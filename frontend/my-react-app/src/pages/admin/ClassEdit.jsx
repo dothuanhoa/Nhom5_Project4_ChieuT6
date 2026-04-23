@@ -3,6 +3,8 @@ import { useParams, useNavigate } from "react-router-dom";
 import { toast } from "sonner";
 import "../../assets/styles/AdminStyle.css";
 
+import HeaderWithBack from "../../components/HeaderWithBack";
+
 const API_BASE_URL = "https://api-backend-spring-nhom5-chieut6.onrender.com";
 
 export default function ClassEdit() {
@@ -66,12 +68,7 @@ export default function ClassEdit() {
 
   return (
     <div className="edit-container">
-      <div className="header-with-back">
-        <button className="btn-back" onClick={() => navigate("/admin/classes")}>
-          <i className="fa-solid fa-arrow-left"></i>
-        </button>
-        <h2 className="dashboard-title">Chỉnh sửa lớp học</h2>
-      </div>
+      <HeaderWithBack title="Cập nhật lớp học" />
 
       <div className="two-columns-layout">
         <div className="edit-card left-col">
