@@ -5,6 +5,7 @@ import "../../assets/styles/TeacherStyle.css";
 
 const API_BASE_URL = "https://api-backend-spring-nhom5-chieut6.onrender.com";
 const NODE_API_URL = "https://api-backend-node-nhom5-chieut6.onrender.com";
+const EXPORT_API_URL = "https://nhom5-project4-chieut6-1.onrender.com";
 
 export default function AttendanceHistory() {
   const [classes, setClasses] = useState([]);
@@ -12,6 +13,9 @@ export default function AttendanceHistory() {
 
   const [records, setRecords] = useState([]);
   const [searchTerm, setSearchTerm] = useState("");
+
+  const [fromDate, setFromDate] = useState("");
+  const [toDate, setToDate] = useState("");
 
   //Call API classes
   useEffect(() => {
@@ -59,12 +63,62 @@ export default function AttendanceHistory() {
 
   //Tìm kiếm
   const danhSachDaLoc = records.filter((item) => {
+    const search = searchTerm.toLowerCase();
+    const tenSV = item.full_name;
+    const maSV = item.student_code;
     const khopTimKiem =
-      item.full_name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      item.student_code.toLowerCase().includes(searchTerm.toLowerCase());
-    return khopTimKiem;
+      tenSV.toLowerCase().includes(search) ||
+      maSV.toLowerCase().includes(search);
+
+    let khopNgay = true;
+    if (fromDate || toDate) {
+      const ngayDiemDanh = new Date(item.check_in_time);
+      ngayDiemDanh.setHours(0, 0, 0, 0);
+
+      if (fromDate) {
+        const mFromDate = new Date(fromDate);
+        mFromDate.setHours(0, 0, 0, 0);
+        if (ngayDiemDanh < mFromDate) khopNgay = false;
+      }
+
+      if (toDate) {
+        const mToDate = new Date(toDate);
+        mToDate.setHours(0, 0, 0, 0);
+        if (ngayDiemDanh > mToDate) khopNgay = false;
+      }
+    }
+
+    return khopTimKiem && khopNgay;
   });
   //End Tìm kiếm
+
+  //Xuất file
+  const handleExportExcel = () => {
+    if (!selectedClassId) {
+      toast.error("Vui lòng chọn lớp học để xuất báo cáo!");
+      return;
+    }
+
+    if ((fromDate && !toDate) || (!fromDate && toDate)) {
+      toast.warning("Vui lòng chọn đầy đủ 'Từ ngày' và 'Đến ngày'!");
+      return;
+    }
+
+    if (fromDate && toDate && new Date(fromDate) > new Date(toDate)) {
+      toast.error("'Từ ngày' không được lớn hơn 'Đến ngày'!");
+      return;
+    }
+
+    let url = `${EXPORT_API_URL}/export?courseId=${selectedClassId}`;
+    if (fromDate && toDate) {
+      url += `&from=${fromDate}&to=${toDate}`;
+    }
+
+    window.open(url, "_blank");
+
+    toast.success("Hệ thống đang tải báo cáo xuống máy tính của bạn...");
+  };
+  //End Xuất file
 
   return (
     <div className="attendance-history-page">
@@ -97,6 +151,58 @@ export default function AttendanceHistory() {
               />
             </div>
           </div>
+        </div>
+        <div
+          className="export-tools-row"
+          style={{
+            display: "flex",
+            gap: "15px",
+            alignItems: "center",
+            paddingTop: "15px",
+            borderTop: "1px dashed #e2e8f0",
+          }}
+        >
+          <div className="form-group">
+            <label className="form-label">Từ ngày (Tùy chọn)</label>
+            <input
+              type="date"
+              className="input-field"
+              style={{
+                padding: "10px",
+                borderRadius: "8px",
+                border: "1px solid #e2e8f0",
+              }}
+              value={fromDate}
+              onChange={(e) => setFromDate(e.target.value)}
+            />
+          </div>
+
+          <div className="form-group">
+            <label className="form-label">Đến ngày (Tùy chọn)</label>
+            <input
+              type="date"
+              className="input-field"
+              style={{
+                padding: "10px",
+                borderRadius: "8px",
+                border: "1px solid #e2e8f0",
+              }}
+              value={toDate}
+              onChange={(e) => setToDate(e.target.value)}
+            />
+          </div>
+
+          <button
+            className="btn-primary"
+            onClick={handleExportExcel}
+            style={{
+              background: "#10b981",
+              marginLeft: "auto",
+              padding: "10px 20px",
+            }}
+          >
+            <i className="fa-solid fa-file-excel"></i> Xuất Excel
+          </button>
         </div>
       </div>
 
