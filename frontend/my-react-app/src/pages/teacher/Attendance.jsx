@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useRef } from "react";
 import { toast } from "sonner";
+import dayjs from "dayjs";
 import "../../assets/styles/TeacherStyle.css";
 
 const API_BASE_URL = "https://api-backend-spring-nhom5-chieut6.onrender.com";
@@ -36,9 +37,8 @@ export default function Attendance() {
     })
       .then((res) => res.json())
       .then((data) => {
-        const listClasses = data.classes || data || [];
-        setClasses(listClasses);
-        if (listClasses.length > 0) setSelectedClassId(listClasses[0].id);
+        setClasses(data);
+        if (data.length > 0) setSelectedClassId(data[0].id);
       })
       .catch(() => toast.error("Lỗi tải danh sách lớp học"));
 
@@ -46,12 +46,7 @@ export default function Attendance() {
       headers: { Authorization: `Bearer ${token}` },
     })
       .then((res) => res.json())
-      .then((data) => {
-        const list = Array.isArray(data)
-          ? data
-          : data.students || data.data || [];
-        setAllStudents(list);
-      })
+      .then((data) => setAllStudents(data))
       .catch(() => console.log("Lỗi tải danh sách sinh viên"));
 
     return () => {
@@ -61,7 +56,7 @@ export default function Attendance() {
     };
   }, []);
 
-  // Call API lấy sinh viên thuộc lớp đang chọn (Chạy mỗi khi đổi lớp)
+  // Call API nlấy sinh viên thuộc lớp đag chọn
   useEffect(() => {
     if (!selectedClassId) return;
 
@@ -70,10 +65,7 @@ export default function Attendance() {
       headers: { Authorization: `Bearer ${token}` },
     })
       .then((res) => res.json())
-      .then((data) => {
-        const list = data.students || data || [];
-        setEnrolledStudentIds(list.map((sv) => sv.id));
-      })
+      .then((data) => setEnrolledStudentIds(data.map((sv) => sv.id)))
       .catch(() => console.log("Lỗi tải danh sách sinh viên của lớp"));
   }, [selectedClassId]);
 
@@ -134,14 +126,9 @@ export default function Attendance() {
       headers: { Authorization: `Bearer ${token}` },
       body: formData,
     })
-      .then((res) => {
-        if (!res.ok) throw new Error("Nhận diện lỗi");
-        return res.json();
-      })
+      .then((res) => res.json())
       .then((data) => {
-        const faceArray = Array.isArray(data) ? data : data.data || [];
-
-        if (faceArray.length === 0) {
+        if (data.length === 0) {
           toast.error("AI không tìm thấy khuôn mặt nào.");
           return;
         }
@@ -154,11 +141,10 @@ export default function Attendance() {
 
           if (realStudent) {
             const isDuplicate = mappedResults.some(
-              (r) => r.studentId === realStudent.studentCode,
+              (item) => item.studentId === realStudent.studentCode,
             );
 
             if (!isDuplicate) {
-              // Mới: Kiểm tra xem ID sinh viên này có nằm trong danh sách lớp không
               const isEnrolled = enrolledStudentIds.includes(realStudent.id);
 
               mappedResults.push({
@@ -166,7 +152,7 @@ export default function Attendance() {
                 studentName: realStudent.fullName,
                 studentId: realStudent.studentCode,
                 similarity: Math.round(aiFace.similarity),
-                isEnrolled: isEnrolled, // Lưu thêm cờ trạng thái này
+                isEnrolled: isEnrolled,
               });
             }
           }
@@ -190,15 +176,7 @@ export default function Attendance() {
   //Xử lý Call API lưu Điểm danh
   const handleConfirmSingle = (student) => {
     const token = localStorage.getItem("token");
-
-    const now = new Date();
-    const year = now.getFullYear();
-    const month = String(now.getMonth() + 1).padStart(2, "0");
-    const day = String(now.getDate()).padStart(2, "0");
-    const hours = String(now.getHours()).padStart(2, "0");
-    const minutes = String(now.getMinutes()).padStart(2, "0");
-    const seconds = String(now.getSeconds()).padStart(2, "0");
-    const checkInTime = `${year}-${month}-${day} ${hours}:${minutes}:${seconds}`;
+    const checkInTime = dayjs().format("YYYY-MM-DD HH:mm:ss");
 
     const payload = {
       studentId: student.dbId,
@@ -216,10 +194,7 @@ export default function Attendance() {
       },
       body: JSON.stringify(payload),
     })
-      .then((res) => {
-        if (!res.ok) throw new Error("Lỗi");
-        toast.success(`Đã điểm danh: ${student.studentName}`);
-      })
+      .then((res) => toast.success(`Đã điểm danh: ${student.studentName}`))
       .catch(() =>
         toast.success(`Đã xác nhận UI: ${student.studentName} (Chờ API)`),
       )

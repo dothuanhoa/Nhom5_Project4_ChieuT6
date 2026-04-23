@@ -7,33 +7,28 @@ const API_BASE_URL = "https://api-backend-spring-nhom5-chieut6.onrender.com";
 
 export default function ClassCreate() {
   const navigate = useNavigate();
-  const [courseCode, setCourseCode] = useState("");
-  const [courseName, setCourseName] = useState("");
-  const [groupNumber, setGroupNumber] = useState("");
+  const [formData, setFormData] = useState({
+    courseCode: "",
+    courseName: "",
+    groupNumber: "",
+  });
 
-  const handleSubmit = async (e) => {
+  const handleSubmit = (e) => {
     e.preventDefault();
     const token = localStorage.getItem("token");
-
-    const payload = { courseCode, courseName, groupNumber };
-
-    try {
-      const response = await fetch(`${API_BASE_URL}/classes`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`,
-        },
-        body: JSON.stringify(payload),
-      });
-
-      if (!response.ok) throw new Error("Tạo lớp học thất bại");
-
-      toast.success("Tạo lớp học mới thành công!");
-      navigate("/admin/classes");
-    } catch (error) {
-      toast.error(error.message);
-    }
+    fetch(`${API_BASE_URL}/classes`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${token}`,
+      },
+      body: JSON.stringify(formData),
+    })
+      .then((response) => {
+        toast.success("Tạo lớp học mới thành công!");
+        navigate("/admin/classes");
+      })
+      .catch((error) => toast.error("Đã xảy ra lỗi khi tạo lớp học."));
   };
 
   return (
@@ -52,8 +47,10 @@ export default function ClassCreate() {
               <label style={{ fontWeight: "bold" }}>Mã môn học</label>
               <input
                 className="input-field"
-                value={courseCode}
-                onChange={(e) => setCourseCode(e.target.value)}
+                value={formData.courseCode}
+                onChange={(e) =>
+                  setFormData({ ...formData, courseCode: e.target.value })
+                }
                 required
               />
             </div>
@@ -62,18 +59,22 @@ export default function ClassCreate() {
               <label style={{ fontWeight: "bold" }}>Tên môn học</label>
               <input
                 className="input-field"
-                value={courseName}
-                onChange={(e) => setCourseName(e.target.value)}
+                value={formData.courseName}
+                onChange={(e) =>
+                  setFormData({ ...formData, courseName: e.target.value })
+                }
                 required
               />
             </div>
 
             <div className="form-group" style={{ marginBottom: "15px" }}>
-              <label style={{ fontWeight: "bold" }}>Nhóm / Tổ</label>
+              <label style={{ fontWeight: "bold" }}>Nhóm</label>
               <input
                 className="input-field"
-                value={groupNumber}
-                onChange={(e) => setGroupNumber(e.target.value)}
+                value={formData.groupNumber}
+                onChange={(e) =>
+                  setFormData({ ...formData, groupNumber: e.target.value })
+                }
                 required
               />
             </div>

@@ -9,69 +9,59 @@ export default function ClassEdit() {
   const { id } = useParams();
   const navigate = useNavigate();
 
-  const [courseCode, setCourseCode] = useState("");
-  const [courseName, setCourseName] = useState("");
-  const [groupNumber, setGroupNumber] = useState("");
+  const [formData, setFormData] = useState({
+    courseCode: "",
+    courseName: "",
+    groupNumber: "",
+  });
   const [students, setStudents] = useState([]);
 
   //Call API lớp và sinh viên theo hoc
   useEffect(() => {
-    const fetchData = async () => {
-      const token = localStorage.getItem("token");
-      try {
-        const resClass = await fetch(`${API_BASE_URL}/classes`, {
-          headers: { Authorization: `Bearer ${token}` },
+    const token = localStorage.getItem("token");
+    fetch(`${API_BASE_URL}/classes/${id}`, {
+      method: "GET",
+      headers: { Authorization: `Bearer ${token}` },
+    })
+      .then((res) => res.json())
+      .then((data) => {
+        setFormData({
+          courseCode: data.courseCode || "",
+          courseName: data.courseName || "",
+          groupNumber: data.groupNumber || "",
         });
-        const dataClass = await resClass.json();
-        const listClasses = dataClass.classes || dataClass || [];
-        const currentClass = listClasses.find((c) => c.id.toString() === id);
+      })
+      .catch(() => toast.error("Không thể tải thông tin môn học"));
 
-        if (currentClass) {
-          setCourseCode(currentClass.courseCode || "");
-          setCourseName(currentClass.courseName || "");
-          setGroupNumber(currentClass.groupNumber || "");
-        }
-
-        //Lấy danh sách sinh viên theo lớp
-        const resStudents = await fetch(
-          `${API_BASE_URL}/classes/${id}/students`,
-          {
-            headers: { Authorization: `Bearer ${token}` },
-          },
-        );
-        if (resStudents.ok) {
-          const dataStudents = await resStudents.json();
-          setStudents(dataStudents);
-        }
-      } catch (error) {
-        toast.error("Lỗi tải dữ liệu");
-      }
-    };
-    fetchData();
+    //Lấy danh sách Sinh viên theo lớp
+    fetch(`${API_BASE_URL}/classes/${id}/students`, {
+      method: "GET",
+      headers: { Authorization: `Bearer ${token}` },
+    })
+      .then((res) => res.json())
+      .then((dataStudents) => setStudents(dataStudents))
+      .catch(() =>
+        toast.error("Không thể tải danh sách sinh viên đang theo học"),
+      );
   }, [id]);
   //End Call API lớp và sinh viên theo hoc
 
-  const handleSubmit = async (e) => {
+  const handleSubmit = (e) => {
     e.preventDefault();
     const token = localStorage.getItem("token");
-    const payload = { courseCode, courseName, groupNumber };
-
-    try {
-      const response = await fetch(`${API_BASE_URL}/classes/${id}`, {
-        method: "PUT",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`,
-        },
-        body: JSON.stringify(payload),
-      });
-
-      if (!response.ok) throw new Error("Cập nhật thất bại");
-      toast.success("Cập nhật lớp học thành công!");
-      navigate("/admin/classes");
-    } catch (error) {
-      toast.error(error.message);
-    }
+    fetch(`${API_BASE_URL}/classes/${id}`, {
+      method: "PUT",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${token}`,
+      },
+      body: JSON.stringify(formData),
+    })
+      .then((response) => {
+        toast.success("Cập nhật lớp học thành công!");
+        navigate("/admin/classes");
+      })
+      .catch(() => toast.error("Cập nhật thất bại, vui lòng thử lại!"));
   };
 
   return (
@@ -100,8 +90,10 @@ export default function ClassEdit() {
               <label style={{ fontWeight: "bold" }}>Mã môn học</label>
               <input
                 className="input-field"
-                value={courseCode}
-                onChange={(e) => setCourseCode(e.target.value)}
+                value={formData.courseCode}
+                onChange={(e) =>
+                  setFormData({ ...formData, courseCode: e.target.value })
+                }
                 required
               />
             </div>
@@ -110,8 +102,10 @@ export default function ClassEdit() {
               <label style={{ fontWeight: "bold" }}>Tên môn học</label>
               <input
                 className="input-field"
-                value={courseName}
-                onChange={(e) => setCourseName(e.target.value)}
+                value={formData.courseName}
+                onChange={(e) =>
+                  setFormData({ ...formData, courseName: e.target.value })
+                }
                 required
               />
             </div>
@@ -120,8 +114,10 @@ export default function ClassEdit() {
               <label style={{ fontWeight: "bold" }}>Nhóm / Tổ</label>
               <input
                 className="input-field"
-                value={groupNumber}
-                onChange={(e) => setGroupNumber(e.target.value)}
+                value={formData.groupNumber}
+                onChange={(e) =>
+                  setFormData({ ...formData, groupNumber: e.target.value })
+                }
                 required
               />
             </div>

@@ -25,9 +25,8 @@ export default function AttendanceHistory() {
     })
       .then((res) => res.json())
       .then((data) => {
-        const listClasses = data.classes || data || [];
-        setClasses(listClasses);
-        if (listClasses.length > 0) setSelectedClassId(listClasses[0].id);
+        setClasses(data);
+        if (data.length > 0) setSelectedClassId(data[0].id);
       })
       .catch(() => toast.error("Lỗi tải danh sách lớp học"));
   }, []);
@@ -51,9 +50,7 @@ export default function AttendanceHistory() {
       },
     })
       .then((res) => res.json())
-      .then((data) => {
-        setRecords(data.data);
-      })
+      .then((data) => setRecords(data.data))
       .catch(() => {
         toast.error("Không thể lấy lịch sử điểm danh");
         setRecords([]);

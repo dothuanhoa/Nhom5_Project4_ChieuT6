@@ -9,7 +9,6 @@ export default function Classes() {
   const navigate = useNavigate();
   const [classes, setClasses] = useState([]);
   const [searchTerm, setSearchTerm] = useState("");
-  const [selectedClass, setSelectedClass] = useState(null);
 
   // call API classes
   useEffect(() => {
@@ -22,10 +21,7 @@ export default function Classes() {
       },
     })
       .then((res) => res.json())
-      .then((data) => {
-        const listData = data.classes || data || [];
-        setClasses(listData);
-      })
+      .then((data) => setClasses(data))
       .catch((err) => toast.error("Lỗi tải danh sách lớp học"));
   }, []);
   // End call API classes
@@ -51,7 +47,6 @@ export default function Classes() {
       },
     })
       .then((res) => {
-        if (!res.ok) toast.error("Xóa lớp học thất bại, vui lý thử lại!");
         setClasses((prev) => prev.filter((item) => item.id !== id));
         toast.success("Đã xóa lớp học");
       })

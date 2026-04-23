@@ -36,7 +36,6 @@ export default function AdminLayout() {
       icon: "fa-solid fa-user-gear",
       label: "Quản lý tài khoản",
     },
-
   ];
 
   const handleLogout = () => {
@@ -47,7 +46,6 @@ export default function AdminLayout() {
 
   return (
     <div className="admin-layout-container">
-      
       {sidebarOpen && (
         <div className="mobile-overlay" onClick={() => setSidebarOpen(false)} />
       )}
@@ -64,20 +62,24 @@ export default function AdminLayout() {
         </div>
 
         <nav className="sidebar-nav">
-          {menuItems.map((item) => (
-            <Link
-              key={item.path}
-              to={item.path}
-              onClick={() => setSidebarOpen(false)}
-              className={`nav-item ${location.pathname === item.path ? "active" : ""}`}
-            >
-              <i className={`${item.icon} nav-icon`}></i>
-              <span className="nav-label">{item.label}</span>
-              {location.pathname === item.path && (
-                <div className="active-indicator" />
-              )}
-            </Link>
-          ))}
+          {menuItems.map((item) => {
+            const isActive =
+              location.pathname === item.path ||
+              location.pathname.startsWith(`${item.path}/`);
+
+            return (
+              <Link
+                key={item.path}
+                to={item.path}
+                onClick={() => setSidebarOpen(false)}
+                className={`nav-item ${isActive ? "active" : ""}`}
+              >
+                <i className={`${item.icon} nav-icon`}></i>
+                <span className="nav-label">{item.label}</span>
+                {isActive && <div className="active-indicator" />}
+              </Link>
+            );
+          })}
         </nav>
 
         <div className="sidebar-footer">

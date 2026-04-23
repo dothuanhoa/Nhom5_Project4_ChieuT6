@@ -21,7 +21,7 @@ export default function AttendanceHistory() {
     })
       .then((res) => res.json())
       .then((data) => {
-        const listClasses = data.classes || data || [];
+        const listClasses = data;
         setClasses(listClasses);
         if (listClasses.length > 0) setSelectedClassId(listClasses[0].id);
       })

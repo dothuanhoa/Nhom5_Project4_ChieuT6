@@ -9,12 +9,11 @@ const API_BASE_URL = "https://api-backend-spring-nhom5-chieut6.onrender.com";
 export default function UserManagement() {
   const navigate = useNavigate();
   const [users, setUsers] = useState([]);
-  const [isLoading, setIsLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState("");
 
   useEffect(() => {
-    setIsLoading(true);
     const token = localStorage.getItem("token");
+
     fetch(`${API_BASE_URL}/users`, {
       method: "GET",
       headers: {
@@ -23,12 +22,8 @@ export default function UserManagement() {
       },
     })
       .then((res) => res.json())
-      .then((data) => {
-        const listData = Array.isArray(data) ? data : [];
-        setUsers(listData);
-      })
-      .catch((err) => toast.error("Lỗi tải danh sách tài khoản"))
-      .finally(() => setIsLoading(false));
+      .then((data) => setUsers(data))
+      .catch(() => toast.error("Lỗi tải danh sách tài khoản"));
   }, []);
 
   let danhSachDaLoc = users.filter((item) => {
@@ -37,14 +32,8 @@ export default function UserManagement() {
   });
 
   const handleDelete = (id) => {
-    if (!id) {
-      toast.error("Không thể xóa: Backend chưa cung cấp ID cho tài khoản này!");
-      return;
-    }
-
     if (!window.confirm("Bạn có chắc chắn muốn xóa tài khoản này?")) return;
     const token = localStorage.getItem("token");
-
     fetch(`${API_BASE_URL}/users/${id}`, {
       method: "DELETE",
       headers: {
@@ -52,11 +41,10 @@ export default function UserManagement() {
       },
     })
       .then((res) => {
-        if (!res.ok) throw new Error("Xóa thất bại");
         setUsers((prev) => prev.filter((item) => item.id !== id));
         toast.success("Đã xóa tài khoản");
       })
-      .catch((err) => toast.error("Hệ thống đang bảo trì chức năng xóa!"));
+      .catch((err) => toast.error("Xóa thất bại, vui lòng thử lại"));
   };
 
   return (
@@ -128,14 +116,6 @@ export default function UserManagement() {
                   </td>
                 </tr>
               ))}
-
-              {danhSachDaLoc.length === 0 && (
-                <tr>
-                  <td colSpan="4" className="empty-state">
-                    <p>Không tìm thấy tài khoản nào.</p>
-                  </td>
-                </tr>
-              )}
             </tbody>
           </table>
         </div>

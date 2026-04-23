@@ -7,49 +7,44 @@ import "../assets/styles/Auth.css";
 const API_BASE_URL = "https://api-backend-spring-nhom5-chieut6.onrender.com";
 
 export default function Login() {
-  const [username, setUsername] = useState("");
-  const [password, setPassword] = useState("");
+  const [formData, setFormData] = useState({
+    username: "",
+    password: "",
+  });
+
   const [showPassword, setShowPassword] = useState(false);
   const [rememberMe, setRememberMe] = useState(false);
   const [error, setError] = useState("");
 
   const navigate = useNavigate();
 
-  const handleSubmit = async (e) => {
+  const handleSubmit = (e) => {
     e.preventDefault();
     setError("");
-    //call API login
-    try {
-      const res = await fetch(`${API_BASE_URL}/auth/login`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ username, password }),
+
+    fetch(`${API_BASE_URL}/auth/login`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(formData),
+    })
+      .then((res) => res.json())
+      .then((data) => {
+        localStorage.setItem("token", data.token);
+        localStorage.setItem("user", JSON.stringify(data));
+
+        toast.success("Đăng nhập thành công!");
+
+        // Điều hướng dựa vào Role
+        const userRole = data.role?.toLowerCase();
+        if (userRole === "admin") {
+          navigate("/admin");
+        } else {
+          navigate("/teacher");
+        }
+      })
+      .catch((err) => {
+        toast.error("Đăng nhập thất bại");
       });
-
-      if (!res.ok) {
-        setError("Tài khoản không chính xác");
-        return;
-      }
-
-      const data = await res.json();
-
-      localStorage.setItem("token", data.token || data.accessToken);
-      localStorage.setItem("user", JSON.stringify(data.user || data));
-
-      toast.success("Đăng nhập thành công!");
-
-      const userRole = (data.user?.role || data.role)?.toLowerCase();
-
-      if (userRole === "admin") {
-        navigate("/admin");
-      } else {
-        navigate("/teacher");
-      }
-    } catch (err) {
-      setError("Hệ thống đang bận. Vui lòng thử lại sau");
-      toast.error("Đã xảy ra lỗi kết nối mạng");
-    }
-    //End call API login
   };
 
   return (
@@ -80,8 +75,8 @@ export default function Login() {
               <input
                 id="username"
                 type="text"
-                value={username}
-                onChange={(e) => setUsername(e.target.value)}
+                value={formData.username}
+                onChange={(e) => setFormData({ ...formData, username: e.target.value })}
                 className="login-input"
                 placeholder="Ví dụ: admin"
                 required
@@ -96,8 +91,8 @@ export default function Login() {
               <input
                 id="password"
                 type={showPassword ? "text" : "password"}
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
+                value={formData.password}
+                onChange={(e) => setFormData({ ...formData, password: e.target.value })}
                 className="login-input"
                 placeholder="********"
                 required

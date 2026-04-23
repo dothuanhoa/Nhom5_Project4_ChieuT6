@@ -23,57 +23,52 @@ export default function Register() {
     });
   };
 
-  const handleSubmit = async (e) => {
+  const handleSubmit = (e) => {
     e.preventDefault();
-
-    try {
-      const token = localStorage.getItem("token");
-
-      const res = await fetch(`${API_BASE_URL}/auth/register`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`,
-        },
-        body: JSON.stringify(formData),
-      });
-
-      const resultText = await res.text();
-
-      if (!res.ok || resultText.startsWith("Lỗi")) {
-        toast.error(
-          resultText || "Tên đăng nhập đã tồn tại hoặc có lỗi xảy ra!",
-        );
-        return;
-      }
-
-      toast.success("Tạo tài khoản thành công!");
-
-      setTimeout(() => {
+    const token = localStorage.getItem("token");
+    fetch(`${API_BASE_URL}/auth/register`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${token}`,
+      },
+      body: JSON.stringify(formData),
+    })
+      .then((res) => {
+        return res.text().then((text) => {
+          if (!res.ok || text.startsWith("Lỗi")) {
+            throw new Error(
+              text || "Tên đăng nhậpđã tồn tại hoặc có lỗi xảy ra!",
+            );
+          }
+          return text;
+        });
+      })
+      .then(() => {
+        toast.success("Tạo tài khoản thành công!");
         navigate("/admin/users");
-      }, 1000);
-    } catch (err) {
-      toast.error("Hệ thống đang bận, vui lòng thử lại sau!");
-    }
+      })
+      .catch((err) => toast.error("Đã có lỗi xảy ra, vui lòng thử lại sau!"));
   };
 
   return (
     <div className="user-management-page">
-      <div className="page-header header-with-back">
+      <div className="header-with-back" style={{ marginBottom: "20px" }}>
         <button className="btn-back" onClick={() => navigate(-1)}>
           <i className="fa-solid fa-arrow-left"></i>
         </button>
-        <h2 className="title-page">Thêm tài khoản mới</h2>
+        <h2 className="dashboard-title">Thêm tài khoản mới</h2>
       </div>
 
-      <div className="table-wrapper register-card">
-        <form onSubmit={handleSubmit} className="register-form">
-          <div className="form-group">
-            <label className="bold-text">
-              Họ và tên <span className="required-star">*</span>
-            </label>
-            <div className="search-input-box input-full-width">
+      <div className="single-column-layout">
+        <div className="edit-card">
+          <form onSubmit={handleSubmit}>
+            <div className="form-group" style={{ marginBottom: "15px" }}>
+              <label style={{ fontWeight: "bold" }}>
+                Họ và tên <span style={{ color: "red" }}>*</span>
+              </label>
               <input
+                className="input-field"
                 type="text"
                 name="fullName"
                 value={formData.fullName}
@@ -82,14 +77,13 @@ export default function Register() {
                 required
               />
             </div>
-          </div>
 
-          <div className="form-group">
-            <label className="bold-text">
-              Tên đăng nhập <span className="required-star">*</span>
-            </label>
-            <div className="search-input-box input-full-width">
+            <div className="form-group" style={{ marginBottom: "15px" }}>
+              <label style={{ fontWeight: "bold" }}>
+                Tên đăng nhập <span style={{ color: "red" }}>*</span>
+              </label>
               <input
+                className="input-field"
                 type="text"
                 name="username"
                 value={formData.username}
@@ -98,14 +92,13 @@ export default function Register() {
                 required
               />
             </div>
-          </div>
 
-          <div className="form-group">
-            <label className="bold-text">
-              Mật khẩu <span className="required-star">*</span>
-            </label>
-            <div className="search-input-box input-full-width">
+            <div className="form-group" style={{ marginBottom: "15px" }}>
+              <label style={{ fontWeight: "bold" }}>
+                Mật khẩu <span style={{ color: "red" }}>*</span>
+              </label>
               <input
+                className="input-field"
                 type="password"
                 name="password"
                 value={formData.password}
@@ -114,39 +107,44 @@ export default function Register() {
                 required
               />
             </div>
-          </div>
 
-          <div className="form-group">
-            <label className="bold-text">
-              Vai trò phân quyền <span className="required-star">*</span>
-            </label>
-            <div className="search-input-box input-full-width">
+            <div className="form-group" style={{ marginBottom: "15px" }}>
+              <label style={{ fontWeight: "bold" }}>
+                Vai trò phân quyền <span style={{ color: "red" }}>*</span>
+              </label>
               <select
+                className="input-field"
                 name="role"
                 value={formData.role}
                 onChange={handleChange}
-                className="form-select"
+                required
               >
                 <option value="USER">Giảng viên (USER)</option>
                 <option value="ADMIN">Quản trị viên (ADMIN)</option>
               </select>
-              <i className="fa-solid fa-chevron-down select-icon"></i>
             </div>
-          </div>
 
-          <div className="form-actions">
-            <button
-              type="button"
-              onClick={() => navigate(-1)}
-              className="btn-secondary"
+            <div
+              className="edit-actions"
+              style={{ marginTop: "20px", display: "flex", gap: "10px" }}
             >
-              Hủy bỏ
-            </button>
-            <button type="submit" className="btn-primary btn-submit">
-              <i className="fa-solid fa-floppy-disk"></i> Lưu tài khoản
-            </button>
-          </div>
-        </form>
+              <button
+                type="button"
+                className="btn-cancel"
+                onClick={() => navigate(-1)}
+              >
+                Hủy bỏ
+              </button>
+              <button type="submit" className="btn-save">
+                <i
+                  className="fa-solid fa-floppy-disk"
+                  style={{ marginRight: "8px" }}
+                ></i>
+                Lưu tài khoản
+              </button>
+            </div>
+          </form>
+        </div>
       </div>
     </div>
   );

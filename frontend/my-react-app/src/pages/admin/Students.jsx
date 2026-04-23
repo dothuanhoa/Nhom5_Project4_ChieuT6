@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { toast } from "sonner";
-// import { studentService } from "../../../services/api_Admin";
 import "../../assets/styles/AdminStyle.css";
 
 const API_BASE_URL = "https://api-backend-spring-nhom5-chieut6.onrender.com";
@@ -44,7 +43,6 @@ export default function Students() {
     if (!window.confirm("Bạn có chắc chắn muốn xóa sinh viên này?")) return;
 
     const token = localStorage.getItem("token");
-
     fetch(`${API_BASE_URL}/students/${studentId}`, {
       method: "DELETE",
       headers: {

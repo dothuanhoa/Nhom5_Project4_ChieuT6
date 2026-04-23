@@ -8,8 +8,11 @@ const API_BASE_URL = "https://api-backend-spring-nhom5-chieut6.onrender.com";
 export default function RegisterFace() {
   const navigate = useNavigate();
 
-  const [studentCode, setStudentCode] = useState("");
-  const [fullName, setFullName] = useState("");
+  const [formData, setFormData] = useState({
+    studentCode: "",
+    fullName: "",
+  });
+
   const [imageFile, setImageFile] = useState(null);
   const [imagePreview, setImagePreview] = useState(null);
   const fileInputRef = useRef(null);
@@ -35,64 +38,51 @@ export default function RegisterFace() {
   };
 
   const handleReset = () => {
-    setStudentCode("");
-    setFullName("");
+    setFormData({ studentCode: "", fullName: "" });
     setImageFile(null);
     setImagePreview(null);
   };
   //End chọn ảnh kéo thả ảnh
 
   //Call API
-  const handleSubmit = async (e) => {
+  const handleSubmit = (e) => {
     e.preventDefault();
     if (!imageFile) return toast.error("Vui lòng tải lên ảnh khuôn mặt!");
-    if (!studentCode.trim() || !fullName.trim())
+    if (!formData.studentCode.trim() || !formData.fullName.trim())
       return toast.error("Vui lòng nhập đủ thông tin!");
 
+    const imagePayload = new FormData();
+    imagePayload.append("image", imageFile);
+
     const token = localStorage.getItem("token");
-    try {
-      const formImage = new FormData();
-      formImage.append("image", imageFile);
+    fetch(`${API_BASE_URL}/ai-vision/register`, {
+      method: "POST",
+      headers: { Authorization: `Bearer ${token}` },
+      body: imagePayload,
+    })
+      .then((aiRes) => aiRes.json())
+      .then((aiData) => {
+        const faceId = aiData.faceId || aiData.id;
+        const studentPayload = {
+          studentCode: formData.studentCode,
+          fullName: formData.fullName,
+          faceId: faceId,
+        };
 
-      const aiFace = await fetch(`${API_BASE_URL}/ai-vision/register`, {
-        method: "POST",
-        headers: { Authorization: `Bearer ${token}` },
-        body: formImage,
-      });
-
-      if (!aiFace.ok)
-        throw new Error("Nhận diện khuôn mặt thất bại trên hệ thống AI.");
-
-      const aiData = await aiFace.json();
-      const faceId = aiData.faceId || aiData.id;
-
-      const studentData = {
-        studentCode: studentCode,
-        fullName: fullName,
-        faceId: faceId,
-      };
-
-      const stdRes = await fetch(`${API_BASE_URL}/students`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`,
-        },
-        body: JSON.stringify(studentData),
-      });
-
-      if (!stdRes.ok)
-        throw new Error("Lưu thông tin sinh viên vào Database thất bại.");
-
-      toast.success("Đăng ký khuôn mặt và hồ sơ thành công!");
-
-      setTimeout(() => {
+        return fetch(`${API_BASE_URL}/students`, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+          },
+          body: JSON.stringify(studentPayload),
+        });
+      })
+      .then((stdRes) => {
+        toast.success("Đăng ký khuôn mặt và hồ sơ thành công!");
         navigate("/admin/students");
-      }, 1500);
-    } catch (error) {
-      console.error(error);
-      toast.error(error.message || "Có lỗi xảy ra, vui lòng thử lại!");
-    }
+      })
+      .catch((error) => toast.error("Có lỗi xảy ra, vui lòng thử lại!"));
   };
   //End Call API
 
@@ -118,8 +108,10 @@ export default function RegisterFace() {
                 <input
                   className="input-field"
                   placeholder="Ví dụ: DH52200988"
-                  value={studentCode}
-                  onChange={(e) => setStudentCode(e.target.value)}
+                  value={formData.studentCode}
+                  onChange={(e) =>
+                    setFormData({ ...formData, studentCode: e.target.value })
+                  }
                   required
                 />
               </div>
@@ -129,8 +121,10 @@ export default function RegisterFace() {
                 <input
                   className="input-field"
                   placeholder="Nhập tên đầy đủ của sinh viên"
-                  value={fullName}
-                  onChange={(e) => setFullName(e.target.value)}
+                  value={formData.fullName}
+                  onChange={(e) =>
+                    setFormData({ ...formData, fullName: e.target.value })
+                  }
                   required
                 />
               </div>

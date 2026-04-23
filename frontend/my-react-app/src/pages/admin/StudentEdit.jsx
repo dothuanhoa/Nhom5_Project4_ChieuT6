@@ -19,34 +19,25 @@ export default function StudentEdit() {
   // Call API lấy sinh viên
   useEffect(() => {
     const token = localStorage.getItem("token");
-    fetch(`${API_BASE_URL}/students`, {
+    fetch(`${API_BASE_URL}/students/${id}`, {
       method: "GET",
       headers: { Authorization: `Bearer ${token}` },
     })
       .then((res) => res.json())
       .then((data) => {
-        const danhSach = data;
-        const sinhVien = danhSach.find((sv) => sv.id.toString() === id);
-        if (sinhVien) {
-          setFormData({
-            studentCode: sinhVien.studentCode,
-            fullName: sinhVien.fullName,
-            faceId: sinhVien.faceId,
-          });
-        } else {
-          toast.error("Không tìm thấy sinh viên!");
-          navigate("/admin/students");
-        }
+        setFormData({
+          studentCode: data.studentCode,
+          fullName: data.fullName,
+          faceId: data.faceId,
+        });
       })
       .catch(() => toast.error("Không thể tải thông tin sinh viên"));
-    // ❌ đã xóa finally setIsLoading
   }, [id, navigate]);
   // End Call API lấy sinh viên
 
   // Cập nhật sinh viên
   const handleSubmit = (e) => {
     e.preventDefault();
-    setIsSubmitting(true);
     const token = localStorage.getItem("token");
 
     fetch(`${API_BASE_URL}/students/${id}`, {
@@ -58,12 +49,10 @@ export default function StudentEdit() {
       body: JSON.stringify(formData),
     })
       .then((res) => {
-        if (!res.ok) toast.error("Cập nhật thông tin thất bại!");
-        toast.success("Cập nhật thông tin thành công!");
+        toast.success("Cập nhật thành công!");
         navigate("/admin/students");
       })
-      .catch(() => toast.error("Cập nhật thất bại, vui lòng thử lại!"))
-      .finally(() => setIsSubmitting(false));
+      .catch(() => toast.error("Cập nhật thất bại, vui lòng thử lại!"));
   };
   // end Cập nhật sinh viên
 
@@ -114,9 +103,7 @@ export default function StudentEdit() {
               Hủy bỏ
             </button>
 
-            <button type="submit" className="btn-save" disabled={isSubmitting}>
-              {isSubmitting ? "Đang lưu..." : "Lưu thay đổi"}
-            </button>
+            <button type="submit" className="btn-save"></button>
           </div>
         </form>
       </div>
