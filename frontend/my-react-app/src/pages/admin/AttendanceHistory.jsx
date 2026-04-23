@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from "react";
+import { toast } from "sonner";
 import dayjs from "dayjs";
 import "../../assets/styles/AdminStyle.css";
 
@@ -11,7 +12,6 @@ export default function AttendanceHistory() {
 
   const [records, setRecords] = useState([]);
   const [searchTerm, setSearchTerm] = useState("");
-  // const [selectedClass, setSelectedClass] = useState("all");
 
   //Call API classes
   useEffect(() => {
