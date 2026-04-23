@@ -3,7 +3,7 @@ import TeacherLayout from "../layout/TeacherLayout.jsx";
 import PrivateRoutes from "../components/PrivateRoutes";
 import { Navigate } from "react-router-dom";
 
-import Login from "../pages/auth";
+import Login from "../pages/Auth.jsx";
 // ===  ADMIN ===
 import ClassEdit from "../pages/admin/ClassEdit.jsx";
 import Classes from "../pages/admin/Classes.jsx";
