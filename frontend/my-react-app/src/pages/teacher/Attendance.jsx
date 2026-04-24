@@ -135,7 +135,7 @@ export default function Attendance() {
 
         const mappedResults = [];
 
-        faceArray.forEach((aiFace) => {
+        data.forEach((aiFace) => {
           const aiFaceId = aiFace.faceId || aiFace.id;
           const realStudent = allStudents.find((sv) => sv.faceId === aiFaceId);
 
@@ -180,7 +180,7 @@ export default function Attendance() {
 
     const payload = {
       studentId: student.dbId,
-      classId: selectedClassId,
+      classId: Number(selectedClassId),
       similarityScore: student.similarity,
       status: "Present",
       checkInTime: checkInTime,
@@ -195,9 +195,7 @@ export default function Attendance() {
       body: JSON.stringify(payload),
     })
       .then((res) => toast.success(`Đã điểm danh: ${student.studentName}`))
-      .catch(() =>
-        toast.success(`Đã xác nhận UI: ${student.studentName} (Chờ API)`),
-      )
+      .catch(() => toast.error(`Điểm danh thất bại: ${student.studentName}`))
       .finally(() => {
         setCurrentResults((prev) => {
           const remainingStudents = prev.filter(

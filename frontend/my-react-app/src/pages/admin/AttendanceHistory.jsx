@@ -32,10 +32,13 @@ export default function AttendanceHistory() {
   //Call API classes
 
   // Hàm chuyển đổi chuỗi thời gian
+  // const formatDateTime = (timeString) => {
+  //   return dayjs(timeString).format("HH:mm:ss - DD/MM/YYYY");
+  // };
   const formatDateTime = (timeString) => {
-    return dayjs(timeString).format("HH:mm:ss - DD/MM/YYYY");
+    const fixed = timeString.replace("Z", "");
+    return dayjs(fixed).format("HH:mm:ss - DD/MM/YYYY");
   };
-
   ///Call API lấy Lịch sử điểm danh
   useEffect(() => {
     if (!selectedClassId) return;
